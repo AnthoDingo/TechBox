@@ -1,0 +1,193 @@
+﻿<Page 
+    x:Class="TechBox.Views.Pages.Computers.InfoPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:TechBox.Views.Pages.Computers"
+    xmlns:helpers="clr-namespace:TechBox.Helpers"
+    xmlns:autohelpers="clr-namespace:TechBox.Helpers.AutoSuggestBox"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:models="clr-namespace:TechBox.Models.Hardware"
+    Title="ComputerInfoPage"
+    d:DataContext="{d:DesignInstance local:InfoPage,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="850"
+    d:DesignWidth="800"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    
+    mc:Ignorable="d" >
+    <Page.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <helpers:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibilityConverter" />
+        <autohelpers:SuggestionChosenToString x:Key="SuggestionChosenToString" />
+        <autohelpers:QuerySubmittedToString x:Key="QuerySubmittedToString" />
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:AutoSuggestBox Grid.Row="0"
+            HorizontalAlignment="Left" 
+            MinWidth="200" 
+            OriginalItemsSource="{Binding ViewModel.Computers, Mode=OneWay}"
+            PlaceholderText="Computer Name..."
+            SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+            QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
+
+        <Grid Grid.Row="1" Margin="0,15,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="0.5*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.5*" />
+                        <RowDefinition Height="0.5*" />
+                    </Grid.RowDefinitions>
+
+                    <ui:Card Grid.Row="0"  VerticalAlignment="Stretch"  VerticalContentAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="Hardware" FontSize="20" Margin="0,0,0,15" />
+
+                            <ui:ProgressRing IsIndeterminate="True" Visibility="{Binding ViewModel.SearchingHardware, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <Grid Visibility="{Binding ViewModel.SearchingHardware, Converter={StaticResource InvertBoolToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.5*"/>
+                                    <ColumnDefinition Width="0.5*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <Label Content="Manufacturer" Target="{Binding ElementName=Manufacturer}" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="Manufacturer" Text="{Binding ViewModel.SelectedCompter.Manufacturer, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,0,0,0">
+                                    <Label Content="Model" Target="{Binding ElementName=Model}" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="Model" Text="{Binding ViewModel.SelectedCompter.Model, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <Label Content="Serial Number" Target="{Binding ElementName=SerialNumber}" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="SerialNumber" Text="{Binding ViewModel.SelectedCompter.SerialNumber, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+                                    <Label Content="Asset Tag" Target="{Binding ElementName=AssetTag}" Margin="0,10,0,0" />
+                                    <TextBox x:Name="AssetTag" Text="{Binding ViewModel.SelectedCompter.AssetTag, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="0">
+                                    <Label Content="Processor" Target="{Binding ElementName=Processor}" Margin="0,10,0,0" />
+                                    <TextBox x:Name="Processor" Text="{Binding ViewModel.SelectedCompter.Processor, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="5,0,0,0">
+                                    <Label Content="Memory" Target="{Binding ElementName=Memory}" Margin="0,10,0,0" />
+                                    <TextBox x:Name="Memory" Text="{Binding ViewModel.SelectedCompter.MemoryAsHuman, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,0,0,0">
+                                    <Label Content="Currently Connected" Target="{Binding ElementName=Connected}" Margin="0,10,0,0" />
+                                    <TextBox x:Name="Connected" Text="{Binding ViewModel.SelectedCompter.CurrentUser, Mode=OneWay}" IsReadOnly="True" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </ui:Card>
+
+                    <ui:Card Grid.Row="1"  VerticalAlignment="Stretch"  VerticalContentAlignment="Top" Margin="0,5,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Disk" FontSize="20" Margin="0,0,0,15" />
+
+                            <ui:ProgressRing IsIndeterminate="True" Visibility="{Binding ViewModel.SearchingDisks, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <ui:VirtualizingItemsControl
+                                Visibility="{Binding ViewModel.SearchingDisks, Converter={StaticResource InvertBoolToVisibilityConverter}}"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                ItemsSource="{Binding ViewModel.SelectedCompter.LogicalDisks, Mode=OneWay}"
+                                VirtualizingPanel.CacheLengthUnit="Item">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="1" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:LogicalDisk}">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name, Mode=OneWay}" />
+                                            <ProgressBar Value="{Binding UsedPercent, Mode=OneWay}" Margin="0,5,0,0" Height="15" />
+                                            <TextBlock HorizontalAlignment="Right" Margin="0,5,0,0">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0} free of {1}">
+                                                        <Binding Path="FreeSpaceHuman" />
+                                                        <Binding Path="SizeHuman" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ui:VirtualizingItemsControl>
+                            <!--<ProgressBar Value="10" />-->
+                        </StackPanel>
+                    </ui:Card>
+
+                </Grid>
+                
+
+                <ui:Card Grid.Column="1" VerticalAlignment="Stretch" VerticalContentAlignment="Top" Margin="5,0,0,0">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.5*" />
+                                <ColumnDefinition Width="0.5*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Software" FontSize="20" />
+                            <!-- TODO replaced by AutoSuggestBox -->
+                            <ui:TextBox Grid.Column="1" HorizontalAlignment="Right" MinWidth="200" PlaceholderText="Search..." />
+                        </Grid>
+
+                        <ui:ProgressRing IsIndeterminate="True" 
+                            Visibility="{Binding ViewModel.SearchingSoftwares, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <TextBlock HorizontalAlignment="Center" Text="Searching installed softwares. It could take a long time ..."
+                            Visibility="{Binding ViewModel.SearchingSoftwares, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        
+                        <ui:DataGrid
+                            Margin="0,15,0,0"
+                            MaxHeight="760"
+                            Visibility="{Binding ViewModel.SearchingSoftwares, Converter={StaticResource InvertBoolToVisibilityConverter}}"
+                            ItemsSource="{Binding ViewModel.SelectedCompter.Softwares}"
+                            AutoGenerateColumns="False" IsReadOnly="True"
+                            CanUserAddRows="False" CanUserDeleteRows="False"
+                            CanUserResizeColumns="True" CanUserResizeRows="False"
+                            CanUserReorderColumns="False"
+                            ScrollViewer.CanContentScroll="True"
+                            ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                            ScrollViewer.VerticalScrollBarVisibility="Visible">
+                            <ui:DataGrid.Columns>
+                                <DataGridTextColumn Width="0.5*" Binding="{Binding Name}" Header="Name" />
+                                <DataGridTextColumn Width="0.25*" Binding="{Binding Version}" Header="Version" />
+                                <DataGridTextColumn Width="0.25*" Binding="{Binding InstallDate}" Header="Installed date" />
+                            </ui:DataGrid.Columns>
+                        </ui:DataGrid>
+                    </StackPanel>
+                </ui:Card>
+
+                
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,0 +1,124 @@
+﻿using System;
+using System.Diagnostics;
+using System.Management;
+using System.Net.Mail;
+using System.Transactions;
+using TechBox.Models.CCM;
+
+namespace TechBox.Statics
+{
+    internal static class Management
+    {
+
+        public static bool InvokeMethod(string computerName, string namespacePath, string className, string methodName, Dictionary<string, object> methodArgs)
+        {
+            ConnectionOptions options = new ConnectionOptions();
+            options.Impersonation = ImpersonationLevel.Impersonate;
+            options.EnablePrivileges = true;
+
+            ManagementScope scope = new ManagementScope($@"\\{computerName}\{namespacePath}", options);
+
+            scope.Connect();
+
+            ManagementPath path = new ManagementPath(className);
+            ManagementClass wmiClass = new ManagementClass(scope, path, null);
+
+            try
+            {
+                ManagementBaseObject inParams = wmiClass.GetMethodParameters(methodName);
+
+                foreach (KeyValuePair<string, object> arg in methodArgs)
+                {
+                    inParams[arg.Key] = arg.Value;
+                }
+
+                ManagementBaseObject outParams = wmiClass.InvokeMethod(methodName, inParams, null);
+            } catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+
+            //Console.WriteLine("Return Value: " + outParams["ReturnValue"]);
+
+            return true;
+        }
+
+        public static bool InvokeMethodeFirst(string computerName, string namespacePath, string className, string methodName, object methodArgument)
+        {
+            ConnectionOptions options = new ConnectionOptions();
+            options.Impersonation = ImpersonationLevel.Impersonate;
+            options.EnablePrivileges = true;
+
+            ManagementScope scope = new ManagementScope($@"\\{computerName}\{namespacePath}", options);
+
+            scope.Connect();
+
+            ObjectQuery query = new ObjectQuery($"SELECT * FROM {className}");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
+
+            ManagementObject firstInstance = null;
+            foreach (ManagementObject queryObj in searcher.Get())
+            {
+                firstInstance = queryObj;
+                break;
+            }
+
+            if (firstInstance != null)
+            {
+                // Créer les arguments pour la méthode
+                ManagementBaseObject inParams = firstInstance.GetMethodParameters(methodName);
+                Debug.WriteLine(inParams);
+                inParams["ArgumentList"] = methodArgument;
+
+                try
+                {
+                    ManagementBaseObject outParams = firstInstance.InvokeMethod(methodName, inParams, null);
+
+                    // Afficher les résultats
+                    Debug.WriteLine("Return Value: " + outParams["ReturnValue"]);
+
+                    return true;
+                } catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    return false;
+                }                
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool InvokeCCMAction(string computerName, string id)
+        {
+
+            // Source wmi explorer source code : https://github.com/vinaypamnani/wmie2
+
+            ConnectionOptions options = new ConnectionOptions() {
+                Impersonation = ImpersonationLevel.Impersonate,
+                EnablePrivileges = true,
+            };
+
+            try
+            {
+                SmsClient smsClient = new SmsClient(computerName, @"ROOT\ccm", options);
+
+                ManagementBaseObject inParams = smsClient.SmsClientClass.GetMethodParameters("TriggerSchedule");
+                inParams["sScheduleId"] = id;
+                ManagementBaseObject outParams = smsClient.SmsClientClass.InvokeMethod("TriggerSchedule", inParams, null);
+
+                return (outParams != null) ? true : false;
+
+            } catch (Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+}

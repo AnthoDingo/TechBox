@@ -1,0 +1,66 @@
+﻿<Page 
+    x:Class="TechBox.Views.Pages.Computers.SCCMPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:TechBox.Views.Pages.Computers"
+    xmlns:ctrls="clr-namespace:TechBox.Controls"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:helpers="clr-namespace:TechBox.Helpers"
+    Title="SCCMPage"
+    d:DataContext="{d:DesignInstance local:SCCMPage,
+                                 IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+    
+    <Page.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <helpers:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibilityConverter" />
+    </Page.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <ui:AutoSuggestBox 
+                HorizontalAlignment="Left" 
+                MinWidth="200" PlaceholderText="Computer Name" 
+                OriginalItemsSource="{Binding ViewModel.Computers, Mode=OneWay}"
+                SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                IsEnabled="{Binding ViewModel.IsEnable, Mode=OneWay}"
+                />
+            <ui:Button Margin="15,0,0,0" Content="Run" Command="{Binding ViewModel.AddCompterCommand}" IsEnabled="{Binding ViewModel.IsEnable, Mode=OneWay}" />
+        </StackPanel>
+
+        <ui:VirtualizingItemsControl 
+            Grid.Row="1" VirtualizingPanel.CacheLengthUnit="Item"
+            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            ItemsSource="{Binding ViewModel.CCMCards}" 
+            HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ctrls:CCMCard ComputerName="{Binding ComputerNameProperty}" HorizontalAlignment="Stretch" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ui:VirtualizingItemsControl>
+
+        <ui:InfoBar Grid.Row="1" Margin="0,25,0,0" Visibility="{Binding ViewModel.IsEnable, Converter={StaticResource InvertBoolToVisibilityConverter}}"
+            Severity="Error" IsClosable="False" IsOpen="True"
+            HorizontalAlignment="Stretch" VerticalAlignment="Top"
+            Title="Access Denied" 
+            Message="You must run application RunAsAdministrator to use this functionnality." />
+    </Grid>
+</Page>
