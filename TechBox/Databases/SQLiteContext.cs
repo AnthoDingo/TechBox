@@ -84,7 +84,8 @@ namespace TechBox.Databases
 			modelBuilder.Entity<Setting>()
 				.HasData(
 					new Setting() { Id = 1, Name = "isInitialSetup", Value = "true" },
-                    new Setting() { Id = 2, Name = "ldap_path", Value = string.Empty }
+                    new Setting() { Id = 2, Name = "ldap_path", Value = string.Empty },
+                    new Setting() { Id = 3, Name = "backup_path", Value = string.Empty }
                 );
         }
     }

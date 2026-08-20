@@ -3,6 +3,7 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
+using Microsoft.Win32;
 using TechBox.Databases;
 using TechBox.Models;
 
@@ -13,12 +14,16 @@ namespace TechBox.ViewModels.Pages
         private bool _isInitialized = false;
         private SQLiteContext _context = new SQLiteContext();
         private Setting _theme;
+        private Setting _backupPathSetting;
 
         [ObservableProperty]
         private string _appVersion = String.Empty;
 
         [ObservableProperty]
         private Wpf.Ui.Appearance.ApplicationTheme _currentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
+
+        [ObservableProperty]
+        private string _backupPath = string.Empty;
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
@@ -34,6 +39,10 @@ namespace TechBox.ViewModels.Pages
             AppVersion = $"TechBox - {GetAssemblyVersion()}";
 
 			SCCMActions = _context.SCCMActions.Where(s => !string.IsNullOrEmpty(s.Name)).ToList();
+
+            _backupPathSetting = _context.Settings.FirstOrDefault(s => s.Name == "backup_path");
+            BackupPath = _backupPathSetting?.Value ?? string.Empty;
+
             //_theme = _context.Settings.First(s => s.Name == "theme");
             //switch (_theme.Value)
             //{
@@ -102,6 +111,27 @@ namespace TechBox.ViewModels.Pages
                     .IsModified = true;
 
                 db.SaveChanges();
+            }
+        }
+
+        [RelayCommand]
+        private void SaveBackupPath()
+        {
+            if (_backupPathSetting is null)
+                return;
+
+            _backupPathSetting.Value = BackupPath;
+            _context.SaveChanges();
+        }
+
+        [RelayCommand]
+        private void BrowseBackupPath()
+        {
+            OpenFolderDialog dialog = new OpenFolderDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                BackupPath = dialog.FolderName;
+                SaveBackupPath();
             }
         }
 	}

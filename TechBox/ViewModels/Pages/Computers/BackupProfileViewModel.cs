@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
+using TechBox.Databases;
 using TechBox.Models.Hardware;
 using TechBox.Services.Contracts;
 using RoboSharp;
@@ -11,8 +12,8 @@ namespace TechBox.ViewModels.Pages.Computers
     {
 
         private bool _isInitialized = false;
-        
-        private string _destination = @"G:\REDACTED-SHARE";
+
+        private string _destination = string.Empty;
 
         [ObservableProperty]
         public List<string> backupProfiles = new List<string>();
@@ -40,7 +41,12 @@ namespace TechBox.ViewModels.Pages.Computers
 
         private async Task InitializeViewModelAsync()
         {
-            Computers = await _activeDirectory.GetAllComputersAsync();            
+            Computers = await _activeDirectory.GetAllComputersAsync();
+
+            using (SQLiteContext db = new SQLiteContext())
+            {
+                _destination = db.Settings.FirstOrDefault(s => s.Name == "backup_path")?.Value ?? string.Empty;
+            }
 
             _isInitialized = true;
         }

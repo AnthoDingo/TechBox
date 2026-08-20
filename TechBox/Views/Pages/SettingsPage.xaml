@@ -127,6 +127,22 @@
                     <ui:Button Grid.Column="2" HorizontalAlignment="Right" Content="Browse" Icon="{ui:SymbolIcon Symbol=Search24}" />
                 </Grid>
             </ui:Card>
+
+            <ui:Card Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ui:TextBlock Grid.Column="0" Margin="0,7,0,0" Text="Backup Path" />
+                    <ui:TextBox Grid.Column="1" Margin="8,0,8,0" Text="{Binding ViewModel.BackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ui:Button Grid.Column="2" Margin="0,0,8,0" Content="Save" Icon="{ui:SymbolIcon Symbol=Checkmark24}" Command="{Binding ViewModel.SaveBackupPathCommand}" />
+                    <ui:Button Grid.Column="3" HorizontalAlignment="Right" Content="Browse" Icon="{ui:SymbolIcon Symbol=Search24}" Command="{Binding ViewModel.BrowseBackupPathCommand}" />
+                </Grid>
+            </ui:Card>
 		</StackPanel>
 	</Grid>
     
