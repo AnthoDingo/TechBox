@@ -1,0 +1,18 @@
+<Window x:Class="TechBox.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TechBox" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Fichier">
+                <MenuItem Header="_Changer l'emplacement LDAP..." Click="ChangeLdapPath_Click" />
+                <Separator />
+                <MenuItem Header="_Quitter" Click="Quit_Click" />
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <TextBlock x:Name="LdapPathTextBlock" Margin="16" VerticalAlignment="Top" TextWrapping="Wrap" />
+        </Grid>
+    </DockPanel>
+</Window>

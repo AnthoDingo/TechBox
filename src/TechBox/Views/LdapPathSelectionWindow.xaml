@@ -1,0 +1,46 @@
+<Window x:Class="TechBox.Views.LdapPathSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:TechBox.Models"
+        Title="Sélection de l'emplacement LDAP"
+        Height="520" Width="520"
+        MinHeight="420" MinWidth="420"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        Closing="Window_Closing">
+    <Window.Resources>
+        <HierarchicalDataTemplate DataType="{x:Type models:LdapNode}" ItemsSource="{Binding Children}">
+            <TextBlock Text="{Binding Name}" Margin="2,0" />
+        </HierarchicalDataTemplate>
+    </Window.Resources>
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="Sélection de l'emplacement LDAP" FontSize="18" FontWeight="Bold" />
+            <TextBlock x:Name="DescriptionTextBlock"
+                       Text="Cette étape est obligatoire. Choisissez l'unité d'organisation (OU) ou le conteneur que TechBox utilisera par défaut, puis confirmez votre sélection."
+                       TextWrapping="Wrap" Margin="0,4,0,0" Foreground="#555555" />
+        </StackPanel>
+
+        <TreeView x:Name="LdapTreeView" Grid.Row="1"
+                  SelectedItemChanged="LdapTreeView_SelectedItemChanged"
+                  TreeViewItem.Expanded="TreeViewItem_Expanded" />
+
+        <TextBlock x:Name="StatusTextBlock" Grid.Row="2" Margin="0,8,0,0"
+                   Foreground="#B00020" TextWrapping="Wrap" />
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <TextBlock Text="Emplacement sélectionné : " VerticalAlignment="Center" Margin="0,0,4,0" />
+            <TextBlock x:Name="SelectedPathTextBlock" Text="(aucun)" VerticalAlignment="Center"
+                       FontStyle="Italic" Margin="0,0,16,0" />
+            <Button x:Name="ConfirmButton" Content="Confirmer la sélection" Padding="12,6"
+                    IsEnabled="False" Click="ConfirmButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>
