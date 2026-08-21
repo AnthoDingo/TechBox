@@ -184,7 +184,7 @@ namespace TechBox.Models.ActiveDirectory
                 List<Group> result = new List<Group>();
               
 
-                foreach (string groupDN in _directoryUser.Properties["memberOf"])
+                foreach (string groupDN in DirectoryUser.Properties["memberOf"])
                 {
                     using DirectoryEntry group = new DirectoryEntry($"LDAP://{groupDN}");
                     try
