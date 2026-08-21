@@ -23,6 +23,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320"/>
@@ -90,6 +91,15 @@
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="8">
+            <ui:Button Content="Annuler" Margin="0,0,8,0" Click="CancelButton_Click"/>
+            <ui:Button Content="Sélectionner" Appearance="Primary"
+                       IsEnabled="{Binding ViewModel.HasSelection}"
+                       Click="SelectButton_Click"/>
+        </StackPanel>
 
     </Grid>
 </ui:FluentWindow>

@@ -21,6 +21,14 @@ namespace TechBox.ViewModels.Windows
         [ObservableProperty]
         private bool _isLoading;
 
+        [ObservableProperty]
+        private bool _hasSelection;
+
+        partial void OnSelectedNodeChanged(AdTreeNode? value)
+        {
+            HasSelection = value is not null;
+        }
+
         [RelayCommand]
         private async Task LoadTreeAsync(string ldapPath)
         {
