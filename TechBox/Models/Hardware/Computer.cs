@@ -188,8 +188,14 @@ namespace TechBox.Models.Hardware
             try
             {
                 CimInstance user = wmi.GetInstances(WMI_ClassName.ComputerSystem, this).First();
-                CurrentUser = user.CimInstanceProperties["UserName"].Value.ToString().Remove(0, 9);
+                string? rawUserName = user.CimInstanceProperties["UserName"]?.Value?.ToString();
 
+                // UserName is null when nobody is interactively logged on (e.g. at the lock/login screen).
+                if (string.IsNullOrEmpty(rawUserName))
+                    return;
+
+                int separatorIndex = rawUserName.IndexOf('\\');
+                CurrentUser = separatorIndex >= 0 ? rawUserName[(separatorIndex + 1)..] : rawUserName;
             }
             catch (Exception e)
             {
