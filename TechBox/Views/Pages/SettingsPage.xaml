@@ -146,6 +146,35 @@
                     <ui:Button Grid.Column="3" HorizontalAlignment="Right" Content="Browse" Icon="{ui:SymbolIcon Symbol=Search24}" Command="{Binding ViewModel.BrowseBackupPathCommand}" />
                 </Grid>
             </ui:Card>
+
+            <ui:Card Margin="0,8,0,0">
+                <StackPanel>
+                    <ui:TextBlock FontWeight="Medium" Text="Remote Admin Credentials" />
+                    <TextBlock Margin="0,2,0,10" TextWrapping="Wrap"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Text="Used to authenticate the current session against remote computers (e.g. opening an admin share $ in Explorer) when your own account isn't a local admin there. Password is encrypted for your Windows account on this machine." />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ui:TextBlock Grid.Row="0" Grid.Column="0" Margin="0,7,8,0" Text="Username" />
+                        <ui:TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+                            PlaceholderText="DOMAIN\adminuser"
+                            Text="{Binding ViewModel.RemoteAdminUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <ui:TextBlock Grid.Row="1" Grid.Column="0" Margin="0,7,8,0" Text="Password" />
+                        <ui:PasswordBox Grid.Row="1" Grid.Column="1"
+                            Password="{Binding ViewModel.RemoteAdminPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <ui:Button Margin="0,10,0,0" HorizontalAlignment="Right" Content="Save" Icon="{ui:SymbolIcon Symbol=Checkmark24}" Command="{Binding ViewModel.SaveRemoteAdminCredentialsCommand}" />
+                </StackPanel>
+            </ui:Card>
 		</StackPanel>
 	</Grid>
     

@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using TechBox.Controls;
 using TechBox.Databases;
 using TechBox.Models;
+using TechBox.Statics;
 using TechBox.Views.Windows;
 
 namespace TechBox.ViewModels.Pages
@@ -18,6 +19,8 @@ namespace TechBox.ViewModels.Pages
         private Setting _theme;
         private Setting _backupPathSetting;
         private Setting _ldapPathSetting;
+        private Setting _remoteAdminUsernameSetting;
+        private Setting _remoteAdminPasswordSetting;
 
         [ObservableProperty]
         private string _appVersion = String.Empty;
@@ -30,6 +33,12 @@ namespace TechBox.ViewModels.Pages
 
         [ObservableProperty]
         private string _ldapPath = string.Empty;
+
+        [ObservableProperty]
+        private string _remoteAdminUsername = string.Empty;
+
+        [ObservableProperty]
+        private string _remoteAdminPassword = string.Empty;
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
@@ -51,6 +60,12 @@ namespace TechBox.ViewModels.Pages
 
             _ldapPathSetting = _context.Settings.FirstOrDefault(s => s.Name == "ldap_path");
             LdapPath = _ldapPathSetting?.Value ?? string.Empty;
+
+            _remoteAdminUsernameSetting = _context.Settings.FirstOrDefault(s => s.Name == "remote_admin_username");
+            RemoteAdminUsername = _remoteAdminUsernameSetting?.Value ?? string.Empty;
+
+            _remoteAdminPasswordSetting = _context.Settings.FirstOrDefault(s => s.Name == "remote_admin_password");
+            RemoteAdminPassword = Security.Unprotect(_remoteAdminPasswordSetting?.Value ?? string.Empty);
 
             //_theme = _context.Settings.First(s => s.Name == "theme");
             //switch (_theme.Value)
@@ -171,6 +186,18 @@ namespace TechBox.ViewModels.Pages
                 LdapPath = window.ViewModel.SelectedNode.Path;
                 SaveLdapPath();
             }
+        }
+
+        [RelayCommand]
+        private void SaveRemoteAdminCredentials()
+        {
+            if (_remoteAdminUsernameSetting is null || _remoteAdminPasswordSetting is null)
+                return;
+
+            _remoteAdminUsernameSetting.Value = RemoteAdminUsername;
+            // DPAPI-encrypted (CurrentUser scope) - only readable by this Windows account on this machine.
+            _remoteAdminPasswordSetting.Value = Security.Protect(RemoteAdminPassword);
+            _context.SaveChanges();
         }
 	}
 }

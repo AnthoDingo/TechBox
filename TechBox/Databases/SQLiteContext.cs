@@ -85,7 +85,9 @@ namespace TechBox.Databases
 				.HasData(
 					new Setting() { Id = 1, Name = "isInitialSetup", Value = "true" },
                     new Setting() { Id = 2, Name = "ldap_path", Value = string.Empty },
-                    new Setting() { Id = 3, Name = "backup_path", Value = string.Empty }
+                    new Setting() { Id = 3, Name = "backup_path", Value = string.Empty },
+                    new Setting() { Id = 4, Name = "remote_admin_username", Value = string.Empty },
+                    new Setting() { Id = 5, Name = "remote_admin_password", Value = string.Empty }
                 );
         }
     }

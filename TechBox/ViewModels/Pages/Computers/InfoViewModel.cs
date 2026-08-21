@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using TechBox.Databases;
 using TechBox.Models.Hardware;
 using TechBox.Services.Contracts;
+using TechBox.Statics;
 
 namespace TechBox.ViewModels.Pages.Computers
 {
@@ -95,6 +97,19 @@ namespace TechBox.ViewModels.Pages.Computers
         {
             if (SelectedCompter == null || disk == null)
                 return;
+
+            using (SQLiteContext db = new SQLiteContext())
+            {
+                string username = db.Settings.FirstOrDefault(s => s.Name == "remote_admin_username")?.Value ?? string.Empty;
+                string encryptedPassword = db.Settings.FirstOrDefault(s => s.Name == "remote_admin_password")?.Value ?? string.Empty;
+
+                if (!string.IsNullOrEmpty(username))
+                {
+                    string password = Security.Unprotect(encryptedPassword);
+                    if (!NetworkShare.Connect(SelectedCompter.Name, username, password))
+                        Debug.WriteLine($"Failed to authenticate against {SelectedCompter.Name} with the configured remote admin credentials.");
+                }
+            }
 
             string driveLetter = disk.Name.TrimEnd('\\', ':');
             Process.Start("explorer.exe", $@"\\{SelectedCompter.Name}\{driveLetter}$");
