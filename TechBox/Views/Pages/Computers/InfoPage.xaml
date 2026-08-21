@@ -9,6 +9,7 @@
     xmlns:autohelpers="clr-namespace:TechBox.Helpers.AutoSuggestBox"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:models="clr-namespace:TechBox.Models.Hardware"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     Title="ComputerInfoPage"
     d:DataContext="{d:DesignInstance local:InfoPage,
                                      IsDesignTimeCreatable=False}"
@@ -125,7 +126,12 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type models:LogicalDisk}">
-                                        <StackPanel>
+                                        <StackPanel Cursor="Hand" ToolTip="Open in Explorer (admin share)">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                                    <i:InvokeCommandAction Command="{Binding DataContext.ViewModel.OpenDiskCommand, RelativeSource={RelativeSource AncestorType=Page}}" CommandParameter="{Binding}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                             <TextBlock Text="{Binding Name, Mode=OneWay}" />
                                             <ProgressBar Value="{Binding UsedPercent, Mode=OneWay}" Margin="0,5,0,0" Height="15" />
                                             <TextBlock HorizontalAlignment="Right" Margin="0,5,0,0">

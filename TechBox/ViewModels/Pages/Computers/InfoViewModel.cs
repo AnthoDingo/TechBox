@@ -89,5 +89,15 @@ namespace TechBox.ViewModels.Pages.Computers
             OnPropertyChanged(nameof(SelectedCompter));
             SearchingSoftwares = false;
         }
+
+        [RelayCommand]
+        private void OpenDisk(LogicalDisk disk)
+        {
+            if (SelectedCompter == null || disk == null)
+                return;
+
+            string driveLetter = disk.Name.TrimEnd('\\', ':');
+            Process.Start("explorer.exe", $@"\\{SelectedCompter.Name}\{driveLetter}$");
+        }
     }
 }
