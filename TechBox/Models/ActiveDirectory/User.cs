@@ -131,7 +131,7 @@ namespace TechBox.Models.ActiveDirectory
             {
                 try
                 {
-                    return _userPrincipal.IsAccountLockedOut();
+                    return UserPrincipal.IsAccountLockedOut();
                 }
                 catch (Exception ex)
                 {
@@ -146,7 +146,7 @@ namespace TechBox.Models.ActiveDirectory
             {
                 try
                 {
-                    return !_userPrincipal.Enabled;
+                    return !UserPrincipal.Enabled;
                 }
                 catch (Exception ex)
                 {
@@ -166,7 +166,7 @@ namespace TechBox.Models.ActiveDirectory
             {
                 try
                 {
-                    return _userPrincipal.PasswordNeverExpires ? null : _userPrincipal.AccountExpirationDate;
+                    return UserPrincipal.PasswordNeverExpires ? null : UserPrincipal.AccountExpirationDate;
                 }
                 catch (Exception ex)
                 {
