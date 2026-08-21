@@ -1,4 +1,5 @@
 ﻿using Microsoft.Management.Infrastructure;
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Numerics;
@@ -110,49 +111,69 @@ namespace TechBox.Models.Hardware
 
         public IEnumerable<Software> Softwares { get; private set; } = new List<Software>();
 
+        // Same keys Programs and Features reads from - the 32-bit view is needed too since
+        // 32-bit applications on a 64-bit OS are registered under WOW6432Node.
+        private static readonly string[] UninstallRegistryPaths =
+        {
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+            @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+        };
+
         public async Task GetSoftwares()
         {
+            // Win32_Product forces the Windows Installer to run a consistency check (and can
+            // trigger repair installs) on every MSI-based package on the machine, which can take
+            // minutes on a machine with many applications and misses anything installed via a
+            // non-MSI (EXE) installer. Reading the Uninstall registry keys directly - the same
+            // source Programs and Features itself uses - is near-instant and more complete.
             List<Software> softs = new List<Software>();
-                
-            //TODO Paralize request
-            WMIService wmi = new WMIService();
-            
-            IEnumerable<CimInstance> softwares = wmi.GetInstances(WMI_ClassName.Application, this, "WHERE Name != null");
-            Debug.WriteLine(softwares.Count());
-            foreach(CimInstance soft in softwares)
+
+            using RegistryKey remoteRoot = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, Name);
+
+            foreach (string path in UninstallRegistryPaths)
             {
-                try
+                using RegistryKey? uninstallKey = remoteRoot.OpenSubKey(path);
+                if (uninstallKey is null)
+                    continue;
+
+                foreach (string subKeyName in uninstallKey.GetSubKeyNames())
                 {
-                    softs.Add(new Software()
+                    try
                     {
-                        Name = (string)soft.CimInstanceProperties["Name"].Value ?? string.Empty,
-                        Version = (string)soft.CimInstanceProperties["Version"].Value ?? string.Empty,
-                        //Vendor = (string)soft.CimInstanceProperties["Vendor"].Value ?? string.Empty,
-                        //InstallDate = (string)soft.CimInstanceProperties["InstallDate"].Value ?? string.Empty
-                    });
+                        using RegistryKey? entry = uninstallKey.OpenSubKey(subKeyName);
+                        if (entry is null)
+                            continue;
+
+                        string name = entry.GetValue("DisplayName") as string ?? string.Empty;
+                        if (string.IsNullOrWhiteSpace(name))
+                            continue;
+
+                        // Skip Windows components/updates and sub-features of another product -
+                        // the same filtering Programs and Features applies.
+                        if (Convert.ToInt32(entry.GetValue("SystemComponent", 0)) == 1)
+                            continue;
+                        if (entry.GetValue("ParentKeyName") is not null)
+                            continue;
+
+                        softs.Add(new Software
+                        {
+                            Name = name,
+                            Version = entry.GetValue("DisplayVersion") as string ?? string.Empty,
+                            Vendor = entry.GetValue("Publisher") as string ?? string.Empty,
+                            InstallDate = entry.GetValue("InstallDate") as string ?? string.Empty
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
                 }
-                catch(Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
-                
             }
 
-            //IEnumerable<CimInstance> ccmSoftwares = wmi.GetValue(WMI_ClassName.CCM_Application, this, @"root\ccm\clientSDK");
-            //ccmSoftwares = ccmSoftwares.Where(s => s.CimInstanceProperties["InstallSate"].Value.ToString() == "Installed");
-            //Debug.WriteLine(ccmSoftwares.Count());
-            //foreach (CimInstance soft in ccmSoftwares)
-            //{
-            //    softs.Add(new Software()
-            //    {
-            //        Name = soft.CimInstanceProperties["Name"].Value.ToString() ?? string.Empty,
-            //        Version = soft.CimInstanceProperties["Version"].Value.ToString() ?? string.Empty,
-            //        Vendor = soft.CimInstanceProperties["Publisher"].Value.ToString() ?? string.Empty,
-            //        //InstallDate = soft.CimInstanceProperties["InstallDate"].Value.ToString() ?? string.Empty
-            //    });
-            //}
-
-            Softwares = softs.Order();
+            Softwares = softs
+                .DistinctBy(s => (s.Name, s.Version))
+                .OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         #endregion
