@@ -1,0 +1,33 @@
+<Window x:Class="TechBox.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Paramètres"
+        Height="220" Width="520"
+        MinHeight="220" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="False">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Paramètres" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" />
+
+        <StackPanel Grid.Row="1" VerticalAlignment="Top">
+            <TextBlock Text="Emplacement LDAP" FontWeight="SemiBold" Margin="0,0,0,4" />
+            <DockPanel>
+                <Button x:Name="BrowseLdapPathButton" DockPanel.Dock="Right" Content="Parcourir..."
+                        Padding="12,4" Margin="8,0,0,0" Click="BrowseLdapPathButton_Click" />
+                <TextBox x:Name="LdapPathTextBox" IsReadOnly="True" IsReadOnlyCaretVisible="True"
+                         VerticalContentAlignment="Center" Padding="4,2" />
+            </DockPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="CloseButton" Content="Fermer" Padding="12,6" Click="CloseButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

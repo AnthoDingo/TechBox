@@ -36,6 +36,10 @@ public partial class LdapPathSelectionWindow : Window
 
         InitializeComponent();
 
+        // Cancelling only makes sense when the selection isn't mandatory (first launch always
+        // requires a confirmed selection - see Window_Closing).
+        CancelButton.Visibility = _isMandatory ? Visibility.Collapsed : Visibility.Visible;
+
         if (!_isMandatory)
         {
             DescriptionTextBlock.Text =
@@ -110,6 +114,12 @@ public partial class LdapPathSelectionWindow : Window
         SelectedPathTextBlock.Text = _selectedNode?.DistinguishedName is { Length: > 0 } dn ? dn : "(aucun)";
         ConfirmButton.IsEnabled = _selectedNode is not null;
         StatusTextBlock.Text = string.Empty;
+    }
+
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = false;
+        Close();
     }
 
     private void ConfirmButton_Click(object sender, RoutedEventArgs e)

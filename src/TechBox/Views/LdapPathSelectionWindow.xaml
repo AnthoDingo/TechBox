@@ -39,6 +39,8 @@
             <TextBlock Text="Emplacement sélectionné : " VerticalAlignment="Center" Margin="0,0,4,0" />
             <TextBlock x:Name="SelectedPathTextBlock" Text="(aucun)" VerticalAlignment="Center"
                        FontStyle="Italic" Margin="0,0,16,0" />
+            <Button x:Name="CancelButton" Content="Annuler" Padding="12,6" Margin="0,0,8,0"
+                    Click="CancelButton_Click" />
             <Button x:Name="ConfirmButton" Content="Confirmer la sélection" Padding="12,6"
                     IsEnabled="False" Click="ConfirmButton_Click" />
         </StackPanel>

@@ -27,10 +27,10 @@ public partial class MainWindow : Window
             : $"Emplacement LDAP actif : {settings.LdapDistinguishedName}";
     }
 
-    private void ChangeLdapPath_Click(object sender, RoutedEventArgs e)
+    private void OpenSettings_Click(object sender, RoutedEventArgs e)
     {
-        var selectionWindow = new LdapPathSelectionWindow(_settingsService, isMandatory: false) { Owner = this };
-        selectionWindow.ShowDialog();
+        var settingsWindow = new SettingsWindow(_settingsService) { Owner = this };
+        settingsWindow.ShowDialog();
         RefreshLdapPathDisplay();
     }
 
