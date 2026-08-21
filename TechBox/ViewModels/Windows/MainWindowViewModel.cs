@@ -9,7 +9,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Reflection.Metadata;
 using TechBox.Databases;
+using TechBox.Models;
 using TechBox.Services.Contracts;
+using TechBox.Views.Windows;
 using Wpf.Ui.Controls;
 
 namespace TechBox.ViewModels.Windows
@@ -147,12 +149,37 @@ namespace TechBox.ViewModels.Windows
 
         private async Task InvokeInitialSetupAsync()
         {
-            SplashScreenVisbility = Visibility.Collapsed;
             InitialSetupVisibility = Visibility.Visible;
+            LoadingStatus = "Configuration initiale : sélection de l'emplacement LDAP...";
 
-            LoadingStatus = "Performing initial setup...";
-            await Task.Delay(2000);
+            AdExplorerWindow window = new(initialLdapPath: null, isMandatory: true)
+            {
+                Owner = Application.Current.MainWindow
+            };
 
+            string? selectedLdapPath = window.ShowDialog() == true
+                ? window.ViewModel.SelectedNode?.Path
+                : null;
+
+            using (SQLiteContext db = new SQLiteContext())
+            {
+                Setting ldapSetting = db.Settings.First(s => s.Name.Equals("ldap_path"));
+                ldapSetting.Value = selectedLdapPath ?? string.Empty;
+
+                Setting initialSetupSetting = db.Settings.First(s => s.Name.Equals("isInitialSetup"));
+                initialSetupSetting.Value = "false";
+
+                await db.SaveChangesAsync();
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedLdapPath))
+            {
+                _activeDirectory.SetLdapPath(selectedLdapPath);
+            }
+
+            InitialSetupVisibility = Visibility.Collapsed;
+
+            await InvokeSpashScreenAsync();
         }
 
         private async Task InvokeSpashScreenAsync()

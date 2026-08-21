@@ -166,7 +166,9 @@ namespace TechBox.ViewModels.Pages
 
             if (window.ShowDialog() == true && window.ViewModel.SelectedNode is not null)
             {
-                LdapPath = window.ViewModel.SelectedNode.DistinguishedName;
+                // ActiveDirectoryService binds a DirectoryEntry directly from this value, so it must be
+                // a full ADsPath ("LDAP://...") and not a bare distinguished name.
+                LdapPath = window.ViewModel.SelectedNode.Path;
                 SaveLdapPath();
             }
         }
