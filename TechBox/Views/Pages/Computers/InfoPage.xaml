@@ -161,7 +161,7 @@
 
                         <ui:ProgressRing IsIndeterminate="True" 
                             Visibility="{Binding ViewModel.SearchingSoftwares, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <TextBlock HorizontalAlignment="Center" Text="Searching installed softwares. It could take a long time ..."
+                        <TextBlock HorizontalAlignment="Center" Text="Searching installed software..."
                             Visibility="{Binding ViewModel.SearchingSoftwares, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                         

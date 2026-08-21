@@ -85,7 +85,7 @@ namespace TechBox.ViewModels.Pages.Computers
         private async Task GetSoftwares()
         {
             SearchingSoftwares = true;
-            //await SelectedCompter.GetSoftwares();
+            await SelectedCompter.GetSoftwares();
             OnPropertyChanged(nameof(SelectedCompter));
             SearchingSoftwares = false;
         }
