@@ -21,6 +21,9 @@ namespace TechBox.Services.Contracts
         IEnumerable<string> SearchUsers(string username);
         User GetUser(string username, bool globalDirectory = false);
 
+        // Groups
+        IEnumerable<GroupMember> GetGroupMembers(string groupDistinguishedName);
+
         // Cache
         void InvalidateCache();
         void InvalidateComputersCache();

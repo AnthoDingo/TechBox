@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Windows.Input;
+using TechBox.Models.ActiveDirectory;
 using TechBox.ViewModels.Pages.Users;
 using Wpf.Ui.Controls;
 
@@ -29,6 +31,12 @@ namespace TechBox.Views.Pages.Users
         {
             Debug.WriteLine($"Request for : {args.SelectedItem.ToString()}");
             ViewModel.GetUser(args.SelectedItem.ToString());
+        }
+
+        private void MemberOfListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is FrameworkElement { DataContext: Group group })
+                ViewModel.ShowGroupMembers(group);
         }
     }
 }

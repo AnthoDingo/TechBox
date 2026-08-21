@@ -56,6 +56,8 @@ namespace TechBox
                 services
                     .AddTransient<AdExplorerWindow>()
                     .AddTransient<AdExplorerViewModel>()
+                    .AddTransient<GroupMembersWindow>()
+                    .AddTransient<GroupMembersViewModel>()
                     ;
 
                 services

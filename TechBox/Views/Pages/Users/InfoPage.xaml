@@ -197,10 +197,11 @@
 
                     <ListView
                         Margin="0,10,0,0"
-                        VerticalAlignment="Stretch" 
-                        MaxHeight="760" 
+                        VerticalAlignment="Stretch"
+                        MaxHeight="760"
                         ItemsSource="{Binding ViewModel.MemberOf, UpdateSourceTrigger=PropertyChanged}"
-                        Visibility="{Binding ViewModel.SearchingMemberOf, Converter={StaticResource InvertBoolToVisibilityConverter}}">
+                        Visibility="{Binding ViewModel.SearchingMemberOf, Converter={StaticResource InvertBoolToVisibilityConverter}}"
+                        MouseDoubleClick="MemberOfListView_MouseDoubleClick">
                         <ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:Group}">
                                 <StackPanel Orientation="Horizontal">

@@ -195,9 +195,9 @@ namespace TechBox.Models.ActiveDirectory
                         int groupType = (int)group.Properties["groupType"].Value;
                         string groupName = group.Properties["name"].Value?.ToString() ?? string.Empty;
 
-                        result.Add((groupType & unchecked((int)0x80000000)) != 0 ? 
-                            new Group { Name = groupName, Type = GroupType.Security } : 
-                            new Group { Name = groupName, Type = GroupType.Distribution, Email = group.Properties["mail"].Value?.ToString() ?? string.Empty }
+                        result.Add((groupType & unchecked((int)0x80000000)) != 0 ?
+                            new Group { Name = groupName, Type = GroupType.Security, DistinguishedName = groupDN } :
+                            new Group { Name = groupName, Type = GroupType.Distribution, Email = group.Properties["mail"].Value?.ToString() ?? string.Empty, DistinguishedName = groupDN }
                         );
                     }
                     catch

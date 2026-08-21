@@ -11,6 +11,9 @@ namespace TechBox.Models.ActiveDirectory
 
         public string Email { get; set; } = string.Empty;
 
+        /// <summary>Distinguished name (no "LDAP://" prefix), used to fetch this group's members.</summary>
+        public string DistinguishedName { get; set; } = string.Empty;
+
         public SymbolIcon Icon
         {
             get

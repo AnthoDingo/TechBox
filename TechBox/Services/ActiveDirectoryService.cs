@@ -229,6 +229,38 @@ namespace TechBox.Services
 
         #endregion
 
+        #region Groups
+
+        public IEnumerable<GroupMember> GetGroupMembers(string groupDistinguishedName)
+        {
+            List<GroupMember> result = new List<GroupMember>();
+
+            using DirectoryEntry group = new DirectoryEntry($"LDAP://{groupDistinguishedName}");
+
+            foreach (string memberDN in group.Properties["member"])
+            {
+                using DirectoryEntry member = new DirectoryEntry($"LDAP://{memberDN}");
+                try
+                {
+                    bool isGroup = member.SchemaClassName.Equals("group", StringComparison.OrdinalIgnoreCase);
+                    string name = member.Properties["displayName"].Value?.ToString()
+                        ?? member.Properties["cn"].Value?.ToString()
+                        ?? string.Empty;
+                    string samAccountName = member.Properties["samAccountName"].Value?.ToString() ?? string.Empty;
+
+                    result.Add(new GroupMember { Name = name, SamAccountName = samAccountName, IsGroup = isGroup });
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            return result.OrderBy(m => m.Name).ToList();
+        }
+
+        #endregion
+
         #region IDisposable
 
         public void Dispose()

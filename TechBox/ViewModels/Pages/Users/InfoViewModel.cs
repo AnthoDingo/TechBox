@@ -2,6 +2,8 @@
 using System.Windows.Markup;
 using TechBox.Models.ActiveDirectory;
 using TechBox.Services.Contracts;
+using TechBox.ViewModels.Windows;
+using TechBox.Views.Windows;
 using Wpf.Ui.Controls;
 
 namespace TechBox.ViewModels.Pages.Users
@@ -125,7 +127,21 @@ namespace TechBox.ViewModels.Pages.Users
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MemberOf))]
-        private string _memberOfSearch = string.Empty;     
+        private string _memberOfSearch = string.Empty;
+
+        /// <summary>Opens a non-blocking window listing the members of <paramref name="group"/>.</summary>
+        public void ShowGroupMembers(Group group)
+        {
+            if (group is null || string.IsNullOrEmpty(group.DistinguishedName))
+                return;
+
+            GroupMembersWindow window = new GroupMembersWindow(new GroupMembersViewModel(_activeDirectory), group)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            window.Show();
+        }
 
         #endregion
     }
