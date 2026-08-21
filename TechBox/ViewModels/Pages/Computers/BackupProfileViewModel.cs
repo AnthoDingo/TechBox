@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
+using Microsoft.EntityFrameworkCore;
 using TechBox.Databases;
 using TechBox.Models.Hardware;
 using TechBox.Services.Contracts;
@@ -45,7 +46,7 @@ namespace TechBox.ViewModels.Pages.Computers
 
             using (SQLiteContext db = new SQLiteContext())
             {
-                _destination = db.Settings.FirstOrDefault(s => s.Name == "backup_path")?.Value ?? string.Empty;
+                _destination = (await db.Settings.FirstOrDefaultAsync(s => s.Name == "backup_path"))?.Value ?? string.Empty;
             }
 
             _isInitialized = true;
@@ -56,13 +57,13 @@ namespace TechBox.ViewModels.Pages.Computers
             SelectedCompter = _activeDirectory.GetComputer(ComputerName);
             if (SelectedCompter.IsOnline())
             {
-                Task.WhenAll(this.GetUserProfiles());
+                await GetUserProfiles();
             }
         }
 
-        private async Task<Task> GetUserProfiles()
+        private async Task GetUserProfiles()
         {
-            return Task.Run(async () =>
+            await Task.Run(() =>
             {
                 BackupProfiles = SelectedCompter.UserProfiles;
                 OnPropertyChanged(nameof(SelectedCompter));
@@ -134,10 +135,7 @@ namespace TechBox.ViewModels.Pages.Computers
 
                 _ = Task.Run(async () =>
                 {
-                    foreach (FolderCard folderCard in UserFolders)
-                    {
-                        await folderCard.RunCopy();
-                    }
+                    await Task.WhenAll(UserFolders.Select(folderCard => folderCard.RunCopy()));
 
                     foreach (FolderCard folderCard in UserFolders)
                     {

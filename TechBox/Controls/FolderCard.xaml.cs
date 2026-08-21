@@ -269,7 +269,7 @@ namespace TechBox.Controls
             // Start the Task
             _copyTask.Start();
             OnPropertyChanged(nameof(IsProgressVisible));
-            _copyTask.Wait();
+            await _copyTask;
         }
 
         public void Cancel()

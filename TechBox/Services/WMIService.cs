@@ -36,10 +36,11 @@ namespace TechBox.Services
             if(Impersonate == true)
                 DComOptions.Impersonation = ImpersonationType.Impersonate;
 
-            CimSession mySession = CimSession.Create(Computer.Name, DComOptions);
-            IEnumerable<CimInstance> queryInstance = mySession.QueryInstances(NameSpace, "WQL", $"SELECT * FROM {ClassName} {WhereClause}");
-
-            return queryInstance;
+            using CimSession mySession = CimSession.Create(Computer.Name, DComOptions);
+            // Materialize while the session is open: QueryInstances is lazily evaluated
+            // and would otherwise be enumerated after the session (and its DCOM
+            // connection) has already been disposed.
+            return mySession.QueryInstances(NameSpace, "WQL", $"SELECT * FROM {ClassName} {WhereClause}").ToList();
         }
 
         public T? GetValue<T>(CimInstance instance, string Name)

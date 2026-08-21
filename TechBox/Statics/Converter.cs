@@ -5,10 +5,11 @@ namespace TechBox.Statics
 {
     public static class Converter
     {
+        private static readonly string[] ByteSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
 
         public static string BytesToString(BigInteger byteCount)
         {
-            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            string[] suf = ByteSuffixes;
             if (byteCount == 0)
                 return "0" + suf[0];
             BigInteger bytes = BigInteger.Abs(byteCount);
