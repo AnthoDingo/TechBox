@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using TechBox.Controls;
 using TechBox.Databases;
 using TechBox.Models;
+using TechBox.Views.Windows;
 
 namespace TechBox.ViewModels.Pages
 {
@@ -16,6 +17,7 @@ namespace TechBox.ViewModels.Pages
         private SQLiteContext _context = new SQLiteContext();
         private Setting _theme;
         private Setting _backupPathSetting;
+        private Setting _ldapPathSetting;
 
         [ObservableProperty]
         private string _appVersion = String.Empty;
@@ -25,6 +27,9 @@ namespace TechBox.ViewModels.Pages
 
         [ObservableProperty]
         private string _backupPath = string.Empty;
+
+        [ObservableProperty]
+        private string _ldapPath = string.Empty;
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
@@ -43,6 +48,9 @@ namespace TechBox.ViewModels.Pages
 
             _backupPathSetting = _context.Settings.FirstOrDefault(s => s.Name == "backup_path");
             BackupPath = _backupPathSetting?.Value ?? string.Empty;
+
+            _ldapPathSetting = _context.Settings.FirstOrDefault(s => s.Name == "ldap_path");
+            LdapPath = _ldapPathSetting?.Value ?? string.Empty;
 
             //_theme = _context.Settings.First(s => s.Name == "theme");
             //switch (_theme.Value)
@@ -135,6 +143,31 @@ namespace TechBox.ViewModels.Pages
             {
                 BackupPath = dialog.FolderName;
                 SaveBackupPath();
+            }
+        }
+
+        [RelayCommand]
+        private void SaveLdapPath()
+        {
+            if (_ldapPathSetting is null)
+                return;
+
+            _ldapPathSetting.Value = LdapPath;
+            _context.SaveChanges();
+        }
+
+        [RelayCommand]
+        private void BrowseLdapPath()
+        {
+            AdExplorerWindow window = new(LdapPath)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true && window.ViewModel.SelectedNode is not null)
+            {
+                LdapPath = window.ViewModel.SelectedNode.DistinguishedName;
+                SaveLdapPath();
             }
         }
 	}
