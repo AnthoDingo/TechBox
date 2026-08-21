@@ -26,5 +26,7 @@ namespace TechBox.Services.Contracts
         void InvalidateComputersCache();
         void InvalidateUsersCache();
 
+        // Configuration
+        void SetLdapPath(string customLdapPath);
     }
 }

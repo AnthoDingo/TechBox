@@ -1,14 +1,15 @@
-﻿<ui:FluentWindow 
+<ui:FluentWindow
     x:Class="TechBox.Views.Windows.AdExplorerWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="clr-namespace:TechBox.Views.Windows"    
-    xmlns:models="clr-namespace:TechBox.Models.ActiveDirectory"    
+    xmlns:local="clr-namespace:TechBox.Views.Windows"
+    xmlns:models="clr-namespace:TechBox.Models.ActiveDirectory"
+    xmlns:helpers="clr-namespace:TechBox.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="Active Directory Explorer"
-    Height="600" 
+    Height="600"
     Width="900"
     d:DataContext="{d:DesignInstance local:AdExplorerWindow,
                                  IsDesignTimeCreatable=True}"
@@ -18,6 +19,9 @@
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
+    <ui:FluentWindow.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </ui:FluentWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -30,7 +34,7 @@
             <ColumnDefinition Width="5"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
         <!-- Toolbar -->
         <ToolBar Grid.Row="0" Grid.ColumnSpan="3">
             <ui:Button
@@ -44,9 +48,10 @@
         <TreeView Grid.Row="1" Grid.Column="0"
                   ItemsSource="{Binding ViewModel.Nodes}"
                   SelectedItemChanged="TreeView_SelectedItemChanged"
+                  TreeViewItem.Expanded="TreeViewItem_Expanded"
                   Margin="4">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate 
+                <HierarchicalDataTemplate
                     DataType="{x:Type models:AdTreeNode}"
                     ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal" Margin="2">
@@ -90,12 +95,17 @@
                     <TextBlock Text="{Binding ViewModel.SelectedNode.DistinguishedName, StringFormat='{}DN : {0}'}"/>
                 </StackPanel>
             </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding ViewModel.ErrorMessage}"
+                           Foreground="#E81123" TextWrapping="Wrap" MaxWidth="500"
+                           Visibility="{Binding ViewModel.HasError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </StatusBarItem>
         </StatusBar>
 
         <!-- Actions -->
         <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Orientation="Horizontal"
                     HorizontalAlignment="Right" Margin="8">
-            <ui:Button Content="Annuler" Margin="0,0,8,0" Click="CancelButton_Click"/>
+            <ui:Button x:Name="CancelButton" Content="Annuler" Margin="0,0,8,0" Click="CancelButton_Click"/>
             <ui:Button Content="Sélectionner" Appearance="Primary"
                        IsEnabled="{Binding ViewModel.HasSelection}"
                        Click="SelectButton_Click"/>
