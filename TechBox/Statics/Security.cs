@@ -9,12 +9,13 @@ namespace TechBox.Statics
 {
     internal static class Security
     {
-
-        public static bool IsAdmin()
+        private static readonly Lazy<bool> _isAdmin = new(() =>
         {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            using WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
+        });
+
+        public static bool IsAdmin() => _isAdmin.Value;
     }
 }

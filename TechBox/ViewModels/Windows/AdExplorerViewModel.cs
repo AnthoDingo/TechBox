@@ -85,19 +85,25 @@ namespace TechBox.ViewModels.Windows
 
             foreach (SearchResult result in results)
             {
-                using DirectoryEntry entry = result.GetDirectoryEntry();
-
                 AdTreeNode node = new AdTreeNode
                 {
-                    Name = entry.Properties["name"].Value?.ToString() ?? string.Empty,
-                    DistinguishedName = entry.Properties["distinguishedName"].Value?.ToString() ?? string.Empty,
-                    Description = entry.Properties["description"].Value?.ToString() ?? string.Empty,
+                    Name = GetProperty(result, "name"),
+                    DistinguishedName = GetProperty(result, "distinguishedName"),
+                    Description = GetProperty(result, "description"),
                     NodeType = AdNodeType.OrganizationalUnit
                 };
 
+                using DirectoryEntry entry = new DirectoryEntry(result.Path);
                 LoadChildren(entry, node);
                 parentNode.Children.Add(node);
             }
+        }
+
+        private static string GetProperty(SearchResult result, string name)
+        {
+            return result.Properties.Contains(name) && result.Properties[name].Count > 0
+                ? result.Properties[name][0]?.ToString() ?? string.Empty
+                : string.Empty;
         }
     }
 }

@@ -21,18 +21,18 @@ namespace TechBox.Statics
             scope.Connect();
 
             ManagementPath path = new ManagementPath(className);
-            ManagementClass wmiClass = new ManagementClass(scope, path, null);
+            using ManagementClass wmiClass = new ManagementClass(scope, path, null);
 
             try
             {
-                ManagementBaseObject inParams = wmiClass.GetMethodParameters(methodName);
+                using ManagementBaseObject inParams = wmiClass.GetMethodParameters(methodName);
 
                 foreach (KeyValuePair<string, object> arg in methodArgs)
                 {
                     inParams[arg.Key] = arg.Value;
                 }
 
-                ManagementBaseObject outParams = wmiClass.InvokeMethod(methodName, inParams, null);
+                using ManagementBaseObject outParams = wmiClass.InvokeMethod(methodName, inParams, null);
             } catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
@@ -55,25 +55,20 @@ namespace TechBox.Statics
             scope.Connect();
 
             ObjectQuery query = new ObjectQuery($"SELECT * FROM {className}");
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
+            using ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
 
-            ManagementObject firstInstance = null;
-            foreach (ManagementObject queryObj in searcher.Get())
-            {
-                firstInstance = queryObj;
-                break;
-            }
+            using ManagementObject firstInstance = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
 
             if (firstInstance != null)
             {
                 // Créer les arguments pour la méthode
-                ManagementBaseObject inParams = firstInstance.GetMethodParameters(methodName);
+                using ManagementBaseObject inParams = firstInstance.GetMethodParameters(methodName);
                 Debug.WriteLine(inParams);
                 inParams["ArgumentList"] = methodArgument;
 
                 try
                 {
-                    ManagementBaseObject outParams = firstInstance.InvokeMethod(methodName, inParams, null);
+                    using ManagementBaseObject outParams = firstInstance.InvokeMethod(methodName, inParams, null);
 
                     // Afficher les résultats
                     Debug.WriteLine("Return Value: " + outParams["ReturnValue"]);
@@ -83,14 +78,12 @@ namespace TechBox.Statics
                 {
                     Debug.WriteLine(ex.Message);
                     return false;
-                }                
+                }
             }
             else
             {
                 return false;
             }
-
-            return true;
         }
 
         public static bool InvokeCCMAction(string computerName, string id)
@@ -107,9 +100,9 @@ namespace TechBox.Statics
             {
                 SmsClient smsClient = new SmsClient(computerName, @"ROOT\ccm", options);
 
-                ManagementBaseObject inParams = smsClient.SmsClientClass.GetMethodParameters("TriggerSchedule");
+                using ManagementBaseObject inParams = smsClient.SmsClientClass.GetMethodParameters("TriggerSchedule");
                 inParams["sScheduleId"] = id;
-                ManagementBaseObject outParams = smsClient.SmsClientClass.InvokeMethod("TriggerSchedule", inParams, null);
+                using ManagementBaseObject outParams = smsClient.SmsClientClass.InvokeMethod("TriggerSchedule", inParams, null);
 
                 return (outParams != null) ? true : false;
 
@@ -117,8 +110,6 @@ namespace TechBox.Statics
             {
                 return false;
             }
-
-            return true;
         }
     }
 }

@@ -96,7 +96,20 @@ namespace TechBox.Services
             return results;
         }
 
-        private T? GetValue<T>(SearchResult result, string name) => GetValue<T>(result.GetDirectoryEntry(), name);
+        private T? GetValue<T>(SearchResult result, string name)
+        {
+            if (!result.Properties.Contains(name) || result.Properties[name].Count == 0)
+                return default;
+
+            object rawValue = result.Properties[name][0];
+
+            return typeof(T).Name switch
+            {
+                "Int64" => (T?)Convert.ChangeType(
+                    Converter.ActiveDirectoryTimeStampToInt64(rawValue), typeof(T)),
+                _ => rawValue is T val ? val : default
+            };
+        }
 
         private T? GetValue<T>(DirectoryEntry entry, string name)
         {
@@ -120,21 +133,17 @@ namespace TechBox.Services
             if (!forceRefresh && IsCacheValid(_cacheComputersExpiry))
                 return _cachedComputers;
 
-            await _computerLock.WaitAsync();
+            await _computerLock.WaitAsync().ConfigureAwait(false);
             try
             {
                 if (!forceRefresh && IsCacheValid(_cacheComputersExpiry))
                     return _cachedComputers;
 
                 _cachedComputers = SearchDirectory(
-                    _directoryEntry, 
-                    "(objectCategory=Computer)", 
-                    ["objectCategory", "cn"], 
-                    result =>
-                    {
-                        using DirectoryEntry entry = result.GetDirectoryEntry();
-                        return entry.Properties["cn"].Value?.ToString();
-                    }
+                    _directoryEntry,
+                    "(objectCategory=Computer)",
+                    ["objectCategory", "cn"],
+                    result => GetValue<string>(result, "cn")
                 ).Order().ToList();
                 _cacheComputersExpiry = DateTime.UtcNow.Add(CacheDuration);
             }
@@ -145,28 +154,8 @@ namespace TechBox.Services
             return _cachedComputers;
         }
 
-        public IEnumerable<string> GetAllComputers(bool forceRefresh = false)
-        {
-            if (!forceRefresh && IsCacheValid(_cacheComputersExpiry))
-                return _cachedComputers;
-
-            DirectorySearcher searcher = new DirectorySearcher(_directoryEntry);
-            searcher.PropertiesToLoad.AddRange(new string[] { "objectCategory", "cn" });
-            searcher.CacheResults = false;
-            searcher.Filter = $"(objectCategory=Computer)";
-
-            List<string> computers = new List<string>();
-            foreach (SearchResult result in searcher.FindAll())
-            {
-                computers.Add(result.GetDirectoryEntry().Properties["cn"].Value.ToString());
-            }
-
-            _cachedComputers = computers.Order().ToList();
-            _cacheComputersExpiry = DateTime.UtcNow.Add(CacheDuration);
-
-            //return computers.Order();
-            return _cachedComputers;
-        }
+        public IEnumerable<string> GetAllComputers(bool forceRefresh = false) =>
+            GetAllComputersAsync(forceRefresh).GetAwaiter().GetResult();
 
         public IEnumerable<string> SearchComputers(string computerName)
         {
@@ -174,11 +163,7 @@ namespace TechBox.Services
                 _directoryEntry,
                 $"(&(objectCategory=Computer)(cn=*{computerName}*))",
                 ["objectCategory", "cn"],
-                result =>
-                {
-                    using DirectoryEntry entry = result.GetDirectoryEntry();
-                    return entry.Properties["cn"].Value?.ToString();
-                }
+                result => GetValue<string>(result, "cn")
             ).Order();
         }
 
@@ -189,11 +174,11 @@ namespace TechBox.Services
                 Filter = $"(&(objectCategory=Computer)(cn={computerName}*))",
                 CacheResults = false
             };
+            searcher.PropertiesToLoad.AddRange(["cn"]);
 
             SearchResult result = searcher.FindOne() ?? throw new KeyNotFoundException($"Computer '{computerName}' not found.");
 
-            using DirectoryEntry entry = result.GetDirectoryEntry();
-            return new Computer { Name = entry.Properties["cn"].Value?.ToString(), DN = entry.Path };
+            return new Computer { Name = GetValue<string>(result, "cn"), DN = result.Path };
         }
         #endregion
 
@@ -204,7 +189,7 @@ namespace TechBox.Services
             if (!forceRefresh && IsCacheValid(_cacheUsersExpiry))
                 return _cachedUsers;
 
-            await _userLock.WaitAsync();
+            await _userLock.WaitAsync().ConfigureAwait(false);
 
             try
             {
@@ -227,29 +212,8 @@ namespace TechBox.Services
             return _cachedUsers;
         }
 
-        public IEnumerable<string> GetAllUsers(bool forceRefresh = false)
-        {
-            if (_cachedUsers.Count > 0)
-                return _cachedUsers;
-
-            DirectorySearcher searcher = new DirectorySearcher(_directoryEntry);
-            searcher.PropertiesToLoad.AddRange(new string[] { "objectCategory", "samAccountName" });
-
-            searcher.CacheResults = false;
-            searcher.Filter = $"(&(objectCategory=Person))";
-
-            List<string> users = new List<string>();
-            foreach (SearchResult result in searcher.FindAll())
-            {
-                //users.Add(result.GetDirectoryEntry().Properties["cn"].Value.ToString());
-                users.Add(GetValue<string>(result, "samAccountName"));
-            }
-
-            _cachedUsers = users.Order().ToList();
-            _cacheUsersExpiry = DateTime.UtcNow.Add(CacheDuration);
-
-            return _cachedUsers;
-        }
+        public IEnumerable<string> GetAllUsers(bool forceRefresh = false) =>
+            GetAllUsersAsync(forceRefresh).GetAwaiter().GetResult();
 
         public IEnumerable<string> SearchUsers(string username)
         {

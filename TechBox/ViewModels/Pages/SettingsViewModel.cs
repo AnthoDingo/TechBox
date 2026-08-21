@@ -4,6 +4,7 @@
 // All Rights Reserved.
 
 using Microsoft.Win32;
+using TechBox.Controls;
 using TechBox.Databases;
 using TechBox.Models;
 
@@ -112,6 +113,8 @@ namespace TechBox.ViewModels.Pages
 
                 db.SaveChanges();
             }
+
+            CCMCard.InvalidateActionsCache();
         }
 
         [RelayCommand]

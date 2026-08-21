@@ -1,4 +1,5 @@
-﻿using RoboSharp;
+﻿using System.Collections.Concurrent;
+using RoboSharp;
 using TechBox.Enums;
 using TechBox.Services.Contracts;
 using TechBox.Statics;
@@ -7,22 +8,17 @@ namespace TechBox.Services
 {
     public class CopyDataService : ICopyData
     {
-        private Dictionary<UserFolder, double> Percents = new Dictionary<UserFolder, double>();
-        private Dictionary<UserFolder, long> CopiedFiles = new Dictionary<UserFolder, long>();
-        private Dictionary<UserFolder, long> TotalFiles = new Dictionary<UserFolder, long>();
+        private readonly ConcurrentDictionary<UserFolder, double> Percents = new();
+        private readonly ConcurrentDictionary<UserFolder, long> CopiedFiles = new();
+        private readonly ConcurrentDictionary<UserFolder, long> TotalFiles = new();
 
 
         public Task CopyFolder(string source, string destination, List<UserFolder> folders)
         {
-            foreach(UserFolder folder in folders)
-            {
-                CopyFolder(source, destination, folder).Wait();
-            }
-
-            return Task.CompletedTask;
+            return Task.WhenAll(folders.Select(folder => CopyFolder(source, destination, folder)));
         }
 
-        public Task CopyFolder(string source, string destination, UserFolder folder)
+        public async Task CopyFolder(string source, string destination, UserFolder folder)
         {
             RoboCommand _roboCommand = new RoboCommand();
             _roboCommand.CopyOptions.Source = $"{source}\\{folder.GetStringValue()}";
@@ -32,31 +28,30 @@ namespace TechBox.Services
             _roboCommand.LoggingOptions.VerboseOutput = true;
 
 
-            CopiedFiles.Add(folder, 0);
-            Percents.Add(folder, 0);
+            CopiedFiles[folder] = 0;
+            Percents[folder] = 0;
 
             _roboCommand.OnCommandCompleted += (sender, e) =>
             {
-                
+
             };
 
             _roboCommand.OnProgressEstimatorCreated += (sender, e) =>
             {
                 e.ResultsEstimate.FilesStatistic.OnTotalChanged += (sender, e) =>
                 {
-                    TotalFiles.Add(folder, e.Difference);
+                    TotalFiles[folder] = e.Difference;
                 };
             };
 
-            _roboCommand.OnCopyProgressChanged += (sender, e) => 
+            _roboCommand.OnCopyProgressChanged += (sender, e) =>
             {
-                CopiedFiles[folder] += 1;
-                Percents[folder] = (double)CopiedFiles[folder] / TotalFiles[folder] * 100;
+                long copied = CopiedFiles.AddOrUpdate(folder, 1, (_, current) => current + 1);
+                if (TotalFiles.TryGetValue(folder, out long total) && total > 0)
+                    Percents[folder] = (double)copied / total * 100;
             };
 
-            _roboCommand.Start().Wait();
-
-            return Task.CompletedTask;
+            await _roboCommand.Start();
         }
     }
 }

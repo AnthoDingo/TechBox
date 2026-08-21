@@ -29,8 +29,12 @@ namespace TechBox.ViewModels.Pages.Tools
 
         private async Task InitializeViewModelAsync()
         {
-            Computers = await _activeDirectory.GetAllComputersAsync();
-            Users = await _activeDirectory.GetAllUsersAsync();
+            Task<IEnumerable<string>> computersTask = _activeDirectory.GetAllComputersAsync();
+            Task<IEnumerable<string>> usersTask = _activeDirectory.GetAllUsersAsync();
+            await Task.WhenAll(computersTask, usersTask);
+
+            Computers = computersTask.Result;
+            Users = usersTask.Result;
         }
     }
 }

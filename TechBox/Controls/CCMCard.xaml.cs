@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Microsoft.EntityFrameworkCore;
 using TechBox.Databases;
 using TechBox.Models;
 using TechBox.Models.Hardware;
@@ -24,6 +25,33 @@ namespace TechBox.Controls
 		private IEnumerable<SCCMAction> actions = new List<SCCMAction>();
         CancellationTokenSource cts = new CancellationTokenSource();
         private CancellationToken cancellationToken;
+
+        private static IReadOnlyList<SCCMAction>? _cachedActions;
+        private static readonly SemaphoreSlim _actionsLock = new(1, 1);
+
+        private static async Task<IReadOnlyList<SCCMAction>> GetEnabledActionsAsync()
+        {
+            if (_cachedActions != null)
+                return _cachedActions;
+
+            await _actionsLock.WaitAsync();
+            try
+            {
+                if (_cachedActions == null)
+                {
+                    using SQLiteContext db = new SQLiteContext();
+                    _cachedActions = await db.SCCMActions.Where(a => a.IsEnabled == true).ToListAsync();
+                }
+            }
+            finally
+            {
+                _actionsLock.Release();
+            }
+
+            return _cachedActions;
+        }
+
+        public static void InvalidateActionsCache() => _cachedActions = null;
 
 		public CCMCard()
         {
@@ -216,9 +244,7 @@ namespace TechBox.Controls
 			Ping = false;
             IsRunning = true;
 
-            actions = (new SQLiteContext()).SCCMActions
-                .Where(a => a.IsEnabled == true)
-                .ToList();
+            actions = await GetEnabledActionsAsync();
 
             MaxPercent = actions.Count();
 

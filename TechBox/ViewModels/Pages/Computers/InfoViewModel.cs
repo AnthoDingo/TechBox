@@ -28,73 +28,66 @@ namespace TechBox.ViewModels.Pages.Computers
         public async Task OnNavigatedToAsync()
         {
             if (!_isInitialized)
-                InitializeViewModelAsync();
+                await InitializeViewModelAsync();
         }
 
-        private async Task InitializeViewModelAsync() 
+        private async Task InitializeViewModelAsync()
         {
             Computers = await _activeDirectory.GetAllComputersAsync();
-           
+
             _isInitialized = true;
         }
 
         public async Task GetComputer(string ComputerName)
-        {            
+        {
             Debug.WriteLine(ComputerName);
-            SelectedCompter = _activeDirectory.GetComputer(ComputerName);
-            if (SelectedCompter.IsOnline())
+            SelectedCompter = await Task.Run(() => _activeDirectory.GetComputer(ComputerName));
+            if (await Task.Run(() => SelectedCompter.IsOnline()))
             {
-                Task.WhenAll(this.GetHardware(), this.GetDisks(), this.GetSoftwares(), this.GetConnectedUser());
+                await Task.WhenAll(
+                    Task.Run(GetHardware),
+                    Task.Run(GetDisks),
+                    Task.Run(GetSoftwares),
+                    Task.Run(GetConnectedUser)
+                );
             }
         }
 
         [ObservableProperty]
         private bool _searchingHardware = false;
-        private async Task<Task> GetHardware()
+        private async Task GetHardware()
         {
-            return Task.Run(async () =>
-            {
-                SearchingHardware = true;
-                await SelectedCompter.GetHardware();
-                OnPropertyChanged(nameof(SelectedCompter));
-                SearchingHardware = false;
-            });
+            SearchingHardware = true;
+            await SelectedCompter.GetHardware();
+            OnPropertyChanged(nameof(SelectedCompter));
+            SearchingHardware = false;
         }
 
-        private async Task<Task> GetConnectedUser()
+        private async Task GetConnectedUser()
         {
-            return Task.Run(async () =>
-            {
-                await SelectedCompter.GetConnectedUser();
-                OnPropertyChanged(nameof(SelectedCompter));
-                //ConnectedUser = SelectedCompter.GetConnectedUser().ToString();
-            });
+            await SelectedCompter.GetConnectedUser();
+            OnPropertyChanged(nameof(SelectedCompter));
+            //ConnectedUser = SelectedCompter.GetConnectedUser().ToString();
         }
 
         [ObservableProperty]
         private bool _searchingDisks = false;
-        private async Task<Task> GetDisks()
+        private async Task GetDisks()
         {
-            return Task.Run(async () =>
-            {
-                SearchingDisks = true;
-                await SelectedCompter.GetLogicalDisks();
-                OnPropertyChanged(nameof(SelectedCompter));
-                SearchingDisks = false;
-            });
+            SearchingDisks = true;
+            await SelectedCompter.GetLogicalDisks();
+            OnPropertyChanged(nameof(SelectedCompter));
+            SearchingDisks = false;
         }
 
         [ObservableProperty]
         private bool _searchingSoftwares = false;
-        private async Task<Task> GetSoftwares()
+        private async Task GetSoftwares()
         {
-            return Task.Run(async () =>
-            {
-                SearchingSoftwares = true;
-                //await SelectedCompter.GetSoftwares();
-                OnPropertyChanged(nameof(SelectedCompter));
-                SearchingSoftwares = false;
-            });
+            SearchingSoftwares = true;
+            //await SelectedCompter.GetSoftwares();
+            OnPropertyChanged(nameof(SelectedCompter));
+            SearchingSoftwares = false;
         }
     }
 }
