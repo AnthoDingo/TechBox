@@ -121,6 +121,8 @@ namespace TechBox
                 services
                     .AddSingleton<Views.Pages.Tools.ActiveDirectoryPage>()
                     .AddSingleton<ViewModels.Pages.Tools.ActiveDirectoryViewModel>()
+                    .AddSingleton<Views.Pages.Tools.PowerShellPage>()
+                    .AddSingleton<ViewModels.Pages.Tools.PowerShellViewModel>()
                     ;
 
                 services

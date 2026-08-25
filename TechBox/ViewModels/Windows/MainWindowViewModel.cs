@@ -131,11 +131,13 @@ namespace TechBox.ViewModels.Windows
                 Icon = new SymbolIcon { Symbol = SymbolRegular.WindowDevTools20 },
             };
             tools.MenuItems.Add(new NavigationViewItem("Active Directory",SymbolRegular.BookContacts20, typeof(Views.Pages.Tools.ActiveDirectoryPage)));
+            tools.MenuItems.Add(new NavigationViewItem("PowerShell", SymbolRegular.WindowConsole20, typeof(Views.Pages.Tools.PowerShellPage)));
             if (System.IO.File.Exists(@"C:\Program Files (x86)\Microsoft Configuration Manager\bin\Microsoft.ConfigurationManagement.exe"))
             {
                 tools.MenuItems.Add(CreateNavigationViewItem("CCM Console", SymbolRegular.WindowConsole20, @"C:\Program Files (x86)\Microsoft Configuration Manager\bin\Microsoft.ConfigurationManagement.exe"));
             }
             tools.MenuItems.Add(CreateNavigationViewItem("MMC", SymbolRegular.WindowConsole20, "mmc.exe"));
+            MenuItems.Add(tools);
 
             ApplyPlugins();
         }
