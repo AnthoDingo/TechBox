@@ -51,6 +51,7 @@ namespace TechBox
             // is base type 'NavigationViewItem'") once host- and plugin-created items are mixed in the
             // same navigation menu.
             _ = typeof(Wpf.Ui.Controls.NavigationViewItem);
+            _ = typeof(ITechBoxPlugin);
 
             PluginManager manager = new();
             manager.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));

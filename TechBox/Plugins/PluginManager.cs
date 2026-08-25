@@ -5,6 +5,7 @@
 
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using TechBox.PluginContract;
 
 namespace TechBox.Plugins
@@ -48,6 +49,21 @@ namespace TechBox.Plugins
         private void LoadPlugin(string dllPath)
         {
             string fileName = Path.GetFileName(dllPath);
+
+            // A plugin folder built with EnableDynamicLoading contains not just the plugin's own
+            // DLL but every one of its dependencies, including shared ones like WPF-UI or
+            // TechBox.PluginContract that the host has already loaded. Loading such a DLL here
+            // would call LoadFromAssemblyPath directly, which bypasses PluginAssemblyLoadContext's
+            // Load() override entirely and creates a second, distinct copy of that assembly before
+            // the host even gets a chance to defer to its own - producing CLR types (like
+            // NavigationViewItem) that WPF's styling then refuses to treat as compatible. Skip any
+            // DLL whose assembly name is already loaded in the default context; it can only be one
+            // of those shared dependencies, never a plugin's own assembly.
+            string assemblyName = Path.GetFileNameWithoutExtension(dllPath);
+            if (AssemblyLoadContext.Default.Assemblies.Any(assembly => assembly.GetName().Name == assemblyName))
+            {
+                return;
+            }
 
             try
             {
