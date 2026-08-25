@@ -23,8 +23,10 @@ Open Source IT Technician box.
 # Plugins
 
 TechBox can be extended without modifying its source code. At startup it scans a `Plugins`
-folder next to `TechBox.exe` and loads every `.dll` found there that contains a public class
-implementing `TechBox.Plugins.ITechBoxPlugin`.
+folder next to `TechBox.exe` (created automatically if missing) and loads every `.dll` found
+there (subfolders are not scanned) that contains a public class implementing
+`TechBox.PluginContract.ITechBoxPlugin`. A plugin that fails to load is skipped and reported in
+a warning dialog; it never prevents the rest of the application, or other plugins, from starting.
 
 A plugin can:
 - register its own pages, view models and services into TechBox's dependency injection container
@@ -32,9 +34,25 @@ A plugin can:
 - contribute navigation menu items pointing to those pages (`ITechBoxPlugin.CreateMenuItems`);
 - optionally override the application title and logo (`ApplicationTitle`, `LogoImagePath`).
 
-To ship a plugin, build it as a class library targeting `net10.0-windows` with `UseWPF` enabled,
-reference `TechBox.dll` (or the `TechBox` project) to implement `ITechBoxPlugin`, and drop the
-compiled output (with its dependencies) in TechBox's `Plugins` folder.
+## Writing a plugin
 
-See [Lear-Roche-La-Moliere/TechBox.Lear](https://github.com/Lear-Roche-La-Moliere/TechBox.Lear) for
-an example plugin.
+1. Create a class library targeting `net10.0-windows` with `<UseWPF>true</UseWPF>` and
+   `<EnableDynamicLoading>true</EnableDynamicLoading>` (the latter makes `dotnet build`, not just
+   `dotnet publish`, copy the plugin's own dependencies next to its DLL). Add a project (or
+   package) reference to `TechBox.PluginContract` (`TechBox.PluginContract\TechBox.PluginContract.csproj`)
+   — plugin authors only need this lightweight contract assembly, not the full `TechBox` project.
+   If you use a `ProjectReference`, mark it `Private="false"` with `ExcludeAssets="runtime"` so
+   your plugin's build output doesn't ship its own copy of `TechBox.PluginContract.dll` — TechBox
+   resolves that assembly from its own copy at load time, and a duplicate copy next to your plugin
+   would break `is ITechBoxPlugin` type checks.
+2. Implement `TechBox.PluginContract.ITechBoxPlugin` on a public class with a public parameterless
+   constructor, registering its pages/view models/services in `ConfigureServices` and contributing
+   navigation menu items in `CreateMenuItems`.
+3. Build the project and copy its entire build output (the plugin DLL, its `.deps.json`, and any
+   dependency DLLs) into TechBox's `Plugins` folder. DLLs that aren't plugins themselves
+   (dependencies) are simply ignored by the scan.
+
+A working, buildable example lives in `samples/TechBox.SamplePlugin`.
+
+See also [Lear-Roche-La-Moliere/TechBox.Lear](https://github.com/Lear-Roche-La-Moliere/TechBox.Lear)
+for a real-world plugin.

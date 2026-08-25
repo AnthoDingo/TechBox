@@ -5,6 +5,10 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechBox", "TechBox\TechBox.csproj", "{8A00A235-7C06-4744-9294-773E34338CA6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechBox.PluginContract", "TechBox.PluginContract\TechBox.PluginContract.csproj", "{70301792-6E15-4D60-A3C2-EEC097C55CC9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechBox.SamplePlugin", "samples\TechBox.SamplePlugin\TechBox.SamplePlugin.csproj", "{95FF1F5E-C8FF-4613-8664-EB5090E636A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{8A00A235-7C06-4744-9294-773E34338CA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A00A235-7C06-4744-9294-773E34338CA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A00A235-7C06-4744-9294-773E34338CA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70301792-6E15-4D60-A3C2-EEC097C55CC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70301792-6E15-4D60-A3C2-EEC097C55CC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70301792-6E15-4D60-A3C2-EEC097C55CC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70301792-6E15-4D60-A3C2-EEC097C55CC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95FF1F5E-C8FF-4613-8664-EB5090E636A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95FF1F5E-C8FF-4613-8664-EB5090E636A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95FF1F5E-C8FF-4613-8664-EB5090E636A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95FF1F5E-C8FF-4613-8664-EB5090E636A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

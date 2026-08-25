@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TechBox.Databases;
 using TechBox.Models;
-using TechBox.Plugins;
+using TechBox.PluginContract;
 using TechBox.Services.Contracts;
 using TechBox.Views.Windows;
 using Wpf.Ui.Controls;

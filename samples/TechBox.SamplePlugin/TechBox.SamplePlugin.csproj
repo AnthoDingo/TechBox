@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TechBox.SamplePlugin</RootNamespace>
+    <AssemblyName>TechBox.SamplePlugin</AssemblyName>
+    <!-- Copies this plugin's own dependencies (e.g. NuGet packages it references) to the
+         build output, not just on `dotnet publish`. Irrelevant for this dependency-free sample,
+         but required for any real-world plugin with dependencies of its own. -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Private=false and ExcludeAssets=runtime keep TechBox.PluginContract.dll out of this
+      plugin's own build output: at load time TechBox resolves the interface types from its own
+      copy of the assembly, so the plugin must not ship a second copy next to it. Shipping a
+      second copy would make `is ITechBoxPlugin` checks fail, because the two copies would be
+      treated as unrelated types by the runtime.
+    -->
+    <ProjectReference Include="..\..\TechBox.PluginContract\TechBox.PluginContract.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

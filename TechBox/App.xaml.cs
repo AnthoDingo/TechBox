@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Windows.Threading;
 using TechBox.Databases;
 using TechBox.Plugins;
+using TechBox.PluginContract;
 using TechBox.Services;
 using TechBox.Services.Contracts;
 using TechBox.ViewModels.Pages;
@@ -32,10 +33,19 @@ namespace TechBox
         // https://docs.microsoft.com/dotnet/core/extensions/configuration
         // https://docs.microsoft.com/dotnet/core/extensions/logging
         /// <summary>
-        /// Plugins discovered in the "Plugins" folder next to the application executable.
-        /// Loaded once, before the host and its dependency injection container are built.
+        /// Discovers plugins in the "Plugins" folder next to the application executable.
+        /// Run once, before the host and its dependency injection container are built.
         /// </summary>
-        private static readonly IReadOnlyList<ITechBoxPlugin> _plugins = PluginLoader.LoadPlugins();
+        private static readonly PluginManager _pluginManager = CreatePluginManager();
+
+        private static readonly IReadOnlyList<ITechBoxPlugin> _plugins = _pluginManager.Plugins;
+
+        private static PluginManager CreatePluginManager()
+        {
+            PluginManager manager = new();
+            manager.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));
+            return manager;
+        }
 
         private static readonly IHost _host = Host
             .CreateDefaultBuilder()
@@ -135,6 +145,19 @@ namespace TechBox
         private void OnStartup(object sender, StartupEventArgs e)
         {
             _host.Start();
+
+            if (_pluginManager.Errors.Count > 0)
+            {
+                string message = string.Join(
+                    Environment.NewLine,
+                    _pluginManager.Errors.Select(error => $"{error.FileName} : {error.Message}"));
+
+                System.Windows.MessageBox.Show(
+                    message,
+                    "Certains plugins n'ont pas pu être chargés",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
         }
 
         /// <summary>

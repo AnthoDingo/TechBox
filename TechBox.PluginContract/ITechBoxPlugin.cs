@@ -6,12 +6,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Controls;
 
-namespace TechBox.Plugins
+namespace TechBox.PluginContract
 {
     /// <summary>
     /// Contract implemented by TechBox plugins. A plugin is a class library (.dll) dropped in the
     /// application's "Plugins" folder, containing exactly one public, parameterless-constructible
-    /// implementation of this interface. It is discovered and loaded at startup by <see cref="PluginLoader"/>.
+    /// implementation of this interface. It is discovered and loaded at startup by TechBox's plugin
+    /// manager.
     /// </summary>
     public interface ITechBoxPlugin
     {

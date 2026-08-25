@@ -59,4 +59,7 @@
     <Resource Include="Assets\wpfui-icon-256.png" />
     <Resource Include="Assets\wpfui-icon-1024.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TechBox.PluginContract\TechBox.PluginContract.csproj" />
+  </ItemGroup>
 </Project>

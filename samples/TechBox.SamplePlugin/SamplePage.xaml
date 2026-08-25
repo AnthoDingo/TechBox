@@ -1,0 +1,18 @@
+<Page
+    x:Class="TechBox.SamplePlugin.SamplePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="SamplePage"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+    <StackPanel Margin="16">
+        <TextBlock Text="Page fournie par le plugin d'exemple." Margin="0,0,0,12" />
+        <ui:Button
+            x:Name="CounterButton"
+            Content="Cliqué 0 fois"
+            Click="CounterButton_Click"
+            HorizontalAlignment="Left" />
+    </StackPanel>
+</Page>
