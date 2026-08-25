@@ -15,6 +15,7 @@ namespace TechBox.Enums
         public static readonly string LogicalDisk = "win32_LogicalDisk";
         public static readonly string Volume = "win32_Volume";
         public static readonly string UserAccount = "win32_UserAccount";
+        public static readonly string OperatingSystem = "win32_OperatingSystem";
         public static readonly string Application = "Win32_Product";
         public static readonly string CCM_Application = "CCM_Application";
     }

@@ -82,6 +82,8 @@ namespace TechBox
                     .AddSingleton<ViewModels.Pages.Computers.SCCMViewModel>()
                     .AddSingleton<Views.Pages.Computers.BackupProfilePage>()
                     .AddSingleton<ViewModels.Pages.Computers.BackupProfileViewModel>()
+                    .AddSingleton<Views.Pages.Computers.PowerPage>()
+                    .AddSingleton<ViewModels.Pages.Computers.PowerViewModel>()
                     ;
                 //services.AddSingleton<ViewModels.Pages.Computers.RestoreProfileViewModel>();
                 //services.AddSingleton<Views.Pages.Computers.RestoreProfilePage>();

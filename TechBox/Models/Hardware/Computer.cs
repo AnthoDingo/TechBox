@@ -241,5 +241,25 @@ namespace TechBox.Models.Hardware
             }
         }
         #endregion
+
+        #region Power
+
+        public DateTime? LastBootUpTime { get; private set; }
+
+        public TimeSpan? Uptime => LastBootUpTime.HasValue ? DateTime.Now - LastBootUpTime.Value : null;
+
+        public string UptimeAsHuman => Uptime.HasValue ? FormatUptime(Uptime.Value) : string.Empty;
+
+        public async Task GetUptime()
+        {
+            WMIService wmi = new WMIService();
+            CimInstance os = wmi.GetInstances(WMI_ClassName.OperatingSystem, this).First();
+            LastBootUpTime = Convert.ToDateTime(os.CimInstanceProperties["LastBootUpTime"].Value);
+        }
+
+        private static string FormatUptime(TimeSpan uptime) =>
+            $"{(int)uptime.TotalDays}j {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s";
+
+        #endregion
     }
 }

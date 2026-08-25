@@ -114,7 +114,7 @@ namespace TechBox.ViewModels.Windows
             computers.MenuItems.Add(new NavigationViewItem("Backup Profile", SymbolRegular.SaveArrowRight20, typeof(Views.Pages.Computers.BackupProfilePage)));
             //computers.MenuItems.Add(new NavigationViewItem("Restore Profile", SymbolRegular.SaveEdit20, typeof(Views.Pages.Computers.RestoreProfilePage)));
             computers.MenuItems.Add(new NavigationViewItem("GLPI", SymbolRegular.Box20, typeof(Views.Pages.Computers.InfoPage)));
-            computers.MenuItems.Add(new NavigationViewItem("Power", SymbolRegular.Power20, typeof(Views.Pages.Computers.InfoPage)));
+            computers.MenuItems.Add(new NavigationViewItem("Power", SymbolRegular.Power20, typeof(Views.Pages.Computers.PowerPage)));
             MenuItems.Add(computers);
 
             NavigationViewItem tools = new NavigationViewItem()
