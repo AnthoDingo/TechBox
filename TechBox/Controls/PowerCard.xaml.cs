@@ -84,5 +84,14 @@ namespace TechBox.Controls
             _uptimeTimer?.Dispose();
             _uptimeTimer = null;
         }
+
+        public event Action<PowerCard>? RemoveEvent;
+
+        [RelayCommand]
+        public void Close()
+        {
+            StopTracking();
+            RemoveEvent?.Invoke(this);
+        }
     }
 }

@@ -50,8 +50,15 @@ namespace TechBox.ViewModels.Pages.Computers
                 return;
 
             PowerCard card = new PowerCard { ComputerName = ComputerName };
+            card.RemoveEvent += RemoveCard;
             PowerCards.Add(card);
             _ = card.StartTracking();
+        }
+
+        private void RemoveCard(PowerCard card)
+        {
+            card.RemoveEvent -= RemoveCard;
+            PowerCards.Remove(card);
         }
     }
 }
