@@ -8,8 +8,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Reflection.Metadata;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using TechBox.Databases;
 using TechBox.Models;
+using TechBox.Plugins;
 using TechBox.Services.Contracts;
 using TechBox.Views.Windows;
 using Wpf.Ui.Controls;
@@ -20,9 +23,13 @@ namespace TechBox.ViewModels.Windows
     {
 
         private readonly IActiveDirectory _activeDirectory;
+        private readonly IReadOnlyList<ITechBoxPlugin> _plugins;
 
         [ObservableProperty]
         private string _applicationTitle = "Local IT TechBox";
+
+        [ObservableProperty]
+        private ImageSource _logoSource = new BitmapImage(new Uri("pack://application:,,,/Assets/wpfui-icon-256.png"));
 
         [ObservableProperty]
         private ObservableCollection<object> _menuItems;
@@ -59,9 +66,10 @@ namespace TechBox.ViewModels.Windows
         [ObservableProperty]
         private string _loadingStatus = "Loading...";
 
-        public MainWindowViewModel(IActiveDirectory activeDirectory)
+        public MainWindowViewModel(IActiveDirectory activeDirectory, IReadOnlyList<ITechBoxPlugin> plugins)
         {
             _activeDirectory = activeDirectory;
+            _plugins = plugins;
 
             //            if (System.IO.File.Exists(@"C:\Program Files\One Identity\Active Roles\7.3\Console\ActiveRoles.msc"))
             //            {
@@ -128,6 +136,29 @@ namespace TechBox.ViewModels.Windows
                 tools.MenuItems.Add(CreateNavigationViewItem("CCM Console", SymbolRegular.WindowConsole20, @"C:\Program Files (x86)\Microsoft Configuration Manager\bin\Microsoft.ConfigurationManagement.exe"));
             }
             tools.MenuItems.Add(CreateNavigationViewItem("MMC", SymbolRegular.WindowConsole20, "mmc.exe"));
+
+            ApplyPlugins();
+        }
+
+        private void ApplyPlugins()
+        {
+            foreach (ITechBoxPlugin plugin in _plugins)
+            {
+                foreach (NavigationViewItem item in plugin.CreateMenuItems())
+                {
+                    MenuItems.Add(item);
+                }
+
+                if (!string.IsNullOrWhiteSpace(plugin.ApplicationTitle) && ApplicationTitle == "Local IT TechBox")
+                {
+                    ApplicationTitle = plugin.ApplicationTitle;
+                }
+
+                if (!string.IsNullOrWhiteSpace(plugin.LogoImagePath) && System.IO.File.Exists(plugin.LogoImagePath))
+                {
+                    LogoSource = new BitmapImage(new Uri(plugin.LogoImagePath, UriKind.Absolute));
+                }
+            }
         }
 
         public async Task Loaded()

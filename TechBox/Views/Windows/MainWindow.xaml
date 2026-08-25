@@ -36,7 +36,7 @@
             Grid.Row="0"
             CloseWindowByDoubleClickOnIcon="True">
             <ui:TitleBar.Icon>
-                <ui:ImageIcon Source="pack://application:,,,/Assets/wpfui-icon-256.png" />
+                <ui:ImageIcon Source="{Binding ViewModel.LogoSource, Mode=OneWay}" />
             </ui:TitleBar.Icon>
         </ui:TitleBar>
 
@@ -88,7 +88,7 @@
                 <Image
                 Width="500"
                 RenderOptions.BitmapScalingMode="HighQuality"
-                    Source="pack://application:,,,/Assets/wpfui-icon-256.png" />
+                    Source="{Binding ViewModel.LogoSource, Mode=OneWay}" />
             </Grid>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <ui:ProgressRing IsIndeterminate="True" />

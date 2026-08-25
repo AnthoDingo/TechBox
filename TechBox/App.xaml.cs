@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Threading;
 using TechBox.Databases;
+using TechBox.Plugins;
 using TechBox.Services;
 using TechBox.Services.Contracts;
 using TechBox.ViewModels.Pages;
@@ -30,6 +31,12 @@ namespace TechBox
         // https://docs.microsoft.com/dotnet/core/extensions/dependency-injection
         // https://docs.microsoft.com/dotnet/core/extensions/configuration
         // https://docs.microsoft.com/dotnet/core/extensions/logging
+        /// <summary>
+        /// Plugins discovered in the "Plugins" folder next to the application executable.
+        /// Loaded once, before the host and its dependency injection container are built.
+        /// </summary>
+        private static readonly IReadOnlyList<ITechBoxPlugin> _plugins = PluginLoader.LoadPlugins();
+
         private static readonly IHost _host = Host
             .CreateDefaultBuilder()
             .ConfigureAppConfiguration(c => { 
@@ -102,6 +109,13 @@ namespace TechBox
                     .AddSingleton<SettingsPage>()
                     .AddSingleton<SettingsViewModel>()
                     ;
+
+                // Plugins
+                services.AddSingleton(_plugins);
+                foreach (ITechBoxPlugin plugin in _plugins)
+                {
+                    plugin.ConfigureServices(services);
+                }
             }).Build();
 
         /// <summary>
