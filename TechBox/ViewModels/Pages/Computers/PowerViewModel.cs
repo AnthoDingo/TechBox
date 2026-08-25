@@ -1,30 +1,21 @@
-using System.Threading;
-using TechBox.Models.Hardware;
+using System.Collections.ObjectModel;
+using TechBox.Controls;
 using TechBox.Services.Contracts;
 
 namespace TechBox.ViewModels.Pages.Computers
 {
     public partial class PowerViewModel : ObservableObject, INavigationAware
     {
-        private const int RefreshIntervalMs = 10_000;
 
         private bool _isInitialized = false;
 
         private readonly IActiveDirectory _activeDirectory;
 
-        private Timer? _uptimeTimer;
-
         [ObservableProperty]
         private IEnumerable<string> _computers = new List<string>();
 
         [ObservableProperty]
-        private Computer _selectedCompter = new Computer();
-
-        [ObservableProperty]
-        private bool _hasSelection = false;
-
-        [ObservableProperty]
-        private string _statusMessage = string.Empty;
+        private ObservableCollection<PowerCard> _powerCards = new ObservableCollection<PowerCard>();
 
         public PowerViewModel(IActiveDirectory activeDirectory)
         {
@@ -33,7 +24,9 @@ namespace TechBox.ViewModels.Pages.Computers
 
         public Task OnNavigatedFromAsync()
         {
-            StopUptimeRefresh();
+            foreach (PowerCard card in PowerCards)
+                card.StopTracking();
+
             return Task.CompletedTask;
         }
 
@@ -50,50 +43,15 @@ namespace TechBox.ViewModels.Pages.Computers
             _isInitialized = true;
         }
 
-        public async Task GetComputer(string ComputerName)
+        public void GetComputer(string ComputerName)
         {
-            StopUptimeRefresh();
-
-            SelectedCompter = await Task.Run(() => _activeDirectory.GetComputer(ComputerName));
-            HasSelection = true;
-            StatusMessage = string.Empty;
-
-            if (!await Task.Run(() => SelectedCompter.IsOnline()))
-            {
-                StatusMessage = "Poste injoignable.";
+            // A card already tracks this computer - leave it as is instead of replacing it.
+            if (PowerCards.Any(c => string.Equals(c.ComputerName, ComputerName, StringComparison.OrdinalIgnoreCase)))
                 return;
-            }
 
-            await RefreshUptimeAsync();
-
-            // Ticks on a ThreadPool thread separate from the UI thread: each tick re-queries WMI
-            // and updates SelectedCompter, keeping the displayed uptime current every 10 seconds.
-            _uptimeTimer = new Timer(async _ => await RefreshUptimeAsync(), null, RefreshIntervalMs, RefreshIntervalMs);
-        }
-
-        private async Task RefreshUptimeAsync()
-        {
-            Computer computer = SelectedCompter;
-            try
-            {
-                await computer.GetUptime();
-                if (ReferenceEquals(SelectedCompter, computer))
-                    StatusMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                if (ReferenceEquals(SelectedCompter, computer))
-                    StatusMessage = $"Erreur : {ex.Message}";
-            }
-
-            if (ReferenceEquals(SelectedCompter, computer))
-                OnPropertyChanged(nameof(SelectedCompter));
-        }
-
-        private void StopUptimeRefresh()
-        {
-            _uptimeTimer?.Dispose();
-            _uptimeTimer = null;
+            PowerCard card = new PowerCard { ComputerName = ComputerName };
+            PowerCards.Add(card);
+            _ = card.StartTracking();
         }
     }
 }

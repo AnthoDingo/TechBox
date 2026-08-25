@@ -6,7 +6,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:TechBox.Views.Pages.Computers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:helpers="clr-namespace:TechBox.Helpers"
     Title="PowerPage"
     d:DataContext="{d:DesignInstance local:PowerPage,
                                  IsDesignTimeCreatable=False}"
@@ -17,14 +16,10 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-    </Page.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <ui:AutoSuggestBox Grid.Row="0"
@@ -35,21 +30,16 @@
             SuggestionChosen="AutoSuggestBox_SuggestionChosen"
             QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
 
-        <ui:Card Grid.Row="1" Margin="0,15,0,0" HorizontalAlignment="Left" MinWidth="300"
-            VerticalContentAlignment="Top"
-            Visibility="{Binding ViewModel.HasSelection, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel>
-                <TextBlock Text="{Binding ViewModel.SelectedCompter.Name, Mode=OneWay}" FontSize="20" FontWeight="Medium" />
-
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <ui:SymbolIcon Symbol="Power20" FontSize="18" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding ViewModel.SelectedCompter.UptimeAsHuman, Mode=OneWay}"
-                        Margin="8,0,0,0" VerticalAlignment="Center" FontSize="16" />
-                </StackPanel>
-
-                <TextBlock Text="{Binding ViewModel.StatusMessage, Mode=OneWay}" Margin="0,8,0,0"
-                    Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
-            </StackPanel>
-        </ui:Card>
+        <ui:VirtualizingItemsControl
+            Grid.Row="1" Margin="0,15,0,0" VirtualizingPanel.CacheLengthUnit="Item"
+            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            ItemsSource="{Binding ViewModel.PowerCards}"
+            HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ui:VirtualizingItemsControl>
     </Grid>
 </Page>
