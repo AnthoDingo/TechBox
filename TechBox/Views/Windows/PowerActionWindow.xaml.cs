@@ -18,6 +18,10 @@ namespace TechBox.Views.Windows
             DataContext = this;
 
             InitializeComponent();
+
+            // Setting DisplayDateStart from a XAML binding throws during parsing (WPF DatePicker
+            // coercion runs before the control is fully initialized) - assign it once loaded instead.
+            Loaded += (_, _) => SchedulePicker.DisplayDateStart = ViewModel.MinimumScheduledDate;
         }
 
         private void MinutesTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)

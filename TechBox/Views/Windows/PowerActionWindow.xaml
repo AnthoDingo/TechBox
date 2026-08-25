@@ -58,8 +58,7 @@
         <StackPanel Grid.Row="3" Margin="0,0,0,12"
                     Visibility="{Binding ViewModel.SelectedTiming, Converter={StaticResource StringEqualsVisibilityConverter}, ConverterParameter=Schedule}">
             <Label Content="Date et heure" Padding="0,0,0,4" />
-            <DatePicker SelectedDate="{Binding ViewModel.ScheduledDate}"
-                        DisplayDateStart="{Binding ViewModel.MinimumScheduledDate}" />
+            <DatePicker x:Name="SchedulePicker" SelectedDate="{Binding ViewModel.ScheduledDate}" />
             <ui:TextBox Margin="0,8,0,0" Text="{Binding ViewModel.ScheduledTimeText}" PlaceholderText="HH:mm" />
         </StackPanel>
 
