@@ -121,7 +121,7 @@ namespace TechBox.ViewModels.Windows
             computers.MenuItems.Add(new NavigationViewItem("SCCM", SymbolRegular.ClipboardTaskListLtr20, typeof(Views.Pages.Computers.SCCMPage)));
             computers.MenuItems.Add(new NavigationViewItem("Backup Profile", SymbolRegular.SaveArrowRight20, typeof(Views.Pages.Computers.BackupProfilePage)));
             //computers.MenuItems.Add(new NavigationViewItem("Restore Profile", SymbolRegular.SaveEdit20, typeof(Views.Pages.Computers.RestoreProfilePage)));
-            computers.MenuItems.Add(new NavigationViewItem("GLPI", SymbolRegular.Box20, typeof(Views.Pages.Computers.InfoPage)));
+            //computers.MenuItems.Add(new NavigationViewItem("GLPI", SymbolRegular.Box20, typeof(Views.Pages.Computers.InfoPage)));
             computers.MenuItems.Add(new NavigationViewItem("Power", SymbolRegular.Power20, typeof(Views.Pages.Computers.PowerPage)));
             MenuItems.Add(computers);
 
@@ -136,6 +136,7 @@ namespace TechBox.ViewModels.Windows
                 tools.MenuItems.Add(CreateNavigationViewItem("CCM Console", SymbolRegular.WindowConsole20, @"C:\Program Files (x86)\Microsoft Configuration Manager\bin\Microsoft.ConfigurationManagement.exe"));
             }
             tools.MenuItems.Add(CreateNavigationViewItem("MMC", SymbolRegular.WindowConsole20, "mmc.exe"));
+            MenuItems.Add(tools);
 
             ApplyPlugins();
         }
