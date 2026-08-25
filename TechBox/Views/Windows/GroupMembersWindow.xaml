@@ -8,7 +8,7 @@
     xmlns:models="clr-namespace:TechBox.Models.ActiveDirectory"
     xmlns:helpers="clr-namespace:TechBox.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Title="Membres du groupe"
+    Title="Group members"
     Height="480"
     Width="420"
     MinHeight="300"
@@ -19,6 +19,7 @@
     d:DesignWidth="420"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ExtendsContentIntoTitleBar="True"
     WindowStartupLocation="CenterOwner"
     ShowInTaskbar="True"
     mc:Ignorable="d">
@@ -31,17 +32,28 @@
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"
+        <ui:TitleBar
+            x:Name="TitleBar"
+            Title="Group members"
+            Grid.Row="0"
+            CloseWindowByDoubleClickOnIcon="True">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Assets/wpfui-icon-256.png" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <TextBlock Grid.Row="1" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"
                    Text="{Binding ViewModel.GroupName, StringFormat='Membres de {0}'}" />
 
-        <ui:ProgressRing Grid.Row="1" IsIndeterminate="True" VerticalAlignment="Top"
+        <ui:ProgressRing Grid.Row="2" IsIndeterminate="True" VerticalAlignment="Top"
                           Visibility="{Binding ViewModel.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-        <ListView Grid.Row="1"
+        <ListView Grid.Row="2"
                   ItemsSource="{Binding ViewModel.Members}"
                   Visibility="{Binding ViewModel.IsLoading, Converter={StaticResource InvertBoolToVisibilityConverter}}">
             <ListView.ItemTemplate>
@@ -58,7 +70,7 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <TextBlock Grid.Row="2" Margin="0,8,0,0" Foreground="#E81123" TextWrapping="Wrap"
+        <TextBlock Grid.Row="3" Margin="0,8,0,0" Foreground="#E81123" TextWrapping="Wrap"
                    Text="{Binding ViewModel.ErrorMessage}"
                    Visibility="{Binding ViewModel.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
     </Grid>
