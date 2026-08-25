@@ -33,7 +33,7 @@ namespace TechBox
         // https://docs.microsoft.com/dotnet/core/extensions/configuration
         // https://docs.microsoft.com/dotnet/core/extensions/logging
         /// <summary>
-        /// Discovers plugins in the "Plugins" folder next to the application executable.
+        /// Discovers plugins in the "Plugins\{PluginName}" subfolders next to the application executable.
         /// Run once, before the host and its dependency injection container are built.
         /// </summary>
         private static readonly PluginManager _pluginManager = CreatePluginManager();

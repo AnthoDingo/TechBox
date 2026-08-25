@@ -23,10 +23,13 @@ Open Source IT Technician box.
 # Plugins
 
 TechBox can be extended without modifying its source code. At startup it scans a `Plugins`
-folder next to `TechBox.exe` (created automatically if missing) and loads every `.dll` found
-there (subfolders are not scanned) that contains a public class implementing
-`TechBox.PluginContract.ITechBoxPlugin`. A plugin that fails to load is skipped and reported in
-a warning dialog; it never prevents the rest of the application, or other plugins, from starting.
+folder next to `TechBox.exe` (created automatically if missing) one level deep: each subfolder,
+`Plugins\{PluginName}\`, is one isolated plugin, and every `.dll` found directly inside it that
+contains a public class implementing `TechBox.PluginContract.ITechBoxPlugin` is loaded. Keeping
+each plugin in its own subfolder means its DLLs never mix with another plugin's, and adding or
+removing a plugin is just adding or deleting its folder. A plugin that fails to load is skipped
+and reported in a warning dialog; it never prevents the rest of the application, or other
+plugins, from starting.
 
 A plugin can:
 - register its own pages, view models and services into TechBox's dependency injection container
@@ -49,8 +52,10 @@ A plugin can:
    constructor, registering its pages/view models/services in `ConfigureServices` and contributing
    navigation menu items in `CreateMenuItems`.
 3. Build the project and copy its entire build output (the plugin DLL, its `.deps.json`, and any
-   dependency DLLs) into TechBox's `Plugins` folder. DLLs that aren't plugins themselves
-   (dependencies) are simply ignored by the scan.
+   dependency DLLs) into its own subfolder of TechBox's `Plugins` folder, e.g.
+   `Plugins\MyPlugin\`. DLLs that aren't plugins themselves (dependencies) are simply ignored by
+   the scan; keeping each plugin in its own subfolder keeps its dependencies from clashing with
+   another plugin's.
 
 A working, buildable example lives in `samples/TechBox.SamplePlugin`.
 

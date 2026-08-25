@@ -9,10 +9,10 @@ using TechBox.PluginContract;
 namespace TechBox.Plugins
 {
     /// <summary>
-    /// Discovers and loads TechBox plugins: every DLL directly inside the application's
-    /// <c>Plugins</c> folder is scanned for public, non-abstract types implementing
-    /// <see cref="ITechBoxPlugin"/>, which are instantiated. DLLs with no such type (e.g. a
-    /// plugin's own dependency assemblies) are ignored.
+    /// Discovers and loads TechBox plugins: each subfolder of the application's <c>Plugins</c>
+    /// folder is treated as one isolated plugin, and every DLL directly inside that subfolder is
+    /// scanned for public, non-abstract types implementing <see cref="ITechBoxPlugin"/>, which are
+    /// instantiated. DLLs with no such type (e.g. a plugin's own dependency assemblies) are ignored.
     /// </summary>
     public sealed class PluginManager
     {
@@ -24,17 +24,23 @@ namespace TechBox.Plugins
         public IReadOnlyList<PluginLoadError> Errors => _errors;
 
         /// <summary>
-        /// Loads every plugin DLL found directly inside <paramref name="pluginsDirectory"/>,
-        /// creating the folder if it doesn't exist yet. A plugin that fails to load is skipped and
-        /// recorded in <see cref="Errors"/>; it never prevents the other plugins from loading.
+        /// Loads every plugin found in a subfolder of <paramref name="pluginsDirectory"/>
+        /// (<c>Plugins\{PluginName}\*.dll</c>), creating the <c>Plugins</c> folder if it doesn't
+        /// exist yet. Each subfolder is scanned independently, keeping one plugin's DLLs from
+        /// mixing with another's, so adding or removing a plugin is just adding or deleting its
+        /// folder. A plugin that fails to load is skipped and recorded in <see cref="Errors"/>; it
+        /// never prevents the other plugins from loading.
         /// </summary>
         public void LoadPlugins(string pluginsDirectory)
         {
             Directory.CreateDirectory(pluginsDirectory);
 
-            foreach (string dllPath in Directory.EnumerateFiles(pluginsDirectory, "*.dll", SearchOption.TopDirectoryOnly))
+            foreach (string pluginDirectory in Directory.EnumerateDirectories(pluginsDirectory))
             {
-                LoadPlugin(dllPath);
+                foreach (string dllPath in Directory.EnumerateFiles(pluginDirectory, "*.dll", SearchOption.TopDirectoryOnly))
+                {
+                    LoadPlugin(dllPath);
+                }
             }
         }
 
