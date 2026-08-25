@@ -42,6 +42,16 @@ namespace TechBox
 
         private static PluginManager CreatePluginManager()
         {
+            // Force the host's own copy of WPF-UI into the default load context before any plugin
+            // gets a chance to load its own copy from its output folder. PluginAssemblyLoadContext.Load
+            // only defers to the host's assembly if it is *already* loaded in the default context, and
+            // at this point in startup no WPF-UI type has been touched by the host yet. Without this,
+            // a plugin loading first would win that race and end up with a distinct NavigationViewItem
+            // type, which WPF then refuses to style ("Can only base on a Style with target type that
+            // is base type 'NavigationViewItem'") once host- and plugin-created items are mixed in the
+            // same navigation menu.
+            _ = typeof(Wpf.Ui.Controls.NavigationViewItem);
+
             PluginManager manager = new();
             manager.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));
             return manager;
