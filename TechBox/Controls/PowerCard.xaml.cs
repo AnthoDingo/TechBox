@@ -2,7 +2,10 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using TechBox.Models.Hardware;
+using TechBox.ViewModels.Windows;
+using TechBox.Views.Windows;
 
 namespace TechBox.Controls
 {
@@ -92,6 +95,15 @@ namespace TechBox.Controls
         {
             StopTracking();
             RemoveEvent?.Invoke(this);
+        }
+
+        private void PowerIcon_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            PowerActionWindow window = new PowerActionWindow(new PowerActionViewModel(ComputerName))
+            {
+                Owner = Window.GetWindow(this)
+            };
+            window.ShowDialog();
         }
     }
 }

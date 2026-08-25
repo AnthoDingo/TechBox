@@ -24,7 +24,8 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <ui:SymbolIcon Symbol="Power20" FontSize="20" VerticalAlignment="Center" Cursor="Hand" />
+                <ui:SymbolIcon Symbol="Power20" FontSize="20" VerticalAlignment="Center" Cursor="Hand"
+                               MouseLeftButtonUp="PowerIcon_MouseLeftButtonUp" />
                 <Label Content="{Binding ComputerName, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue=ComputerName}"
                        FontWeight="Medium" FontSize="16" VerticalAlignment="Center" Margin="8,0,0,0" />
             </StackPanel>

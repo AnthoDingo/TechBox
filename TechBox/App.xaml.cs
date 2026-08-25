@@ -58,6 +58,8 @@ namespace TechBox
                     .AddTransient<AdExplorerViewModel>()
                     .AddTransient<GroupMembersWindow>()
                     .AddTransient<GroupMembersViewModel>()
+                    .AddTransient<PowerActionWindow>()
+                    .AddTransient<PowerActionViewModel>()
                     ;
 
                 services
