@@ -27,6 +27,17 @@ namespace TechBox.Plugins
 
         protected override Assembly? Load(AssemblyName assemblyName)
         {
+            // If the host already has an assembly of this name loaded (WPF assemblies, WPF-UI,
+            // TechBox.PluginContract, ...), defer to it instead of loading a second copy from this
+            // plugin's own output folder. Without this, a NuGet dependency the plugin ships next to
+            // itself (e.g. WPF-UI, when EnableDynamicLoading copies it there) would be loaded twice
+            // as two distinct CLR types, and WPF would throw "Can only base on a Style with target
+            // type that is base type '...'" when styling a control created from the plugin's copy.
+            if (AssemblyLoadContext.Default.Assemblies.Any(assembly => assembly.GetName().Name == assemblyName.Name))
+            {
+                return null;
+            }
+
             string? assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
             return assemblyPath is null ? null : LoadFromAssemblyPath(assemblyPath);
         }
