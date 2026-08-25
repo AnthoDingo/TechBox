@@ -37,7 +37,7 @@
             HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="1" />
+                    <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ui:VirtualizingItemsControl>
