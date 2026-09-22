@@ -91,10 +91,10 @@ namespace TechBox.Statics
 
             // Source wmi explorer source code : https://github.com/vinaypamnani/wmie2
 
-            ConnectionOptions options = new ConnectionOptions() {
-                Impersonation = ImpersonationLevel.Impersonate,
-                EnablePrivileges = true,
-            };
+            // Carries the remote admin credentials from the settings page when they are configured,
+            // so triggering a schedule works even when the technician's own account isn't an admin
+            // on the target. Falls back to the current Windows session when none is set.
+            ConnectionOptions options = RemoteCredentials.CreateConnectionOptions(computerName);
 
             try
             {
@@ -108,6 +108,9 @@ namespace TechBox.Statics
 
             } catch (Exception ex)
             {
+                // Card only reports a count of failures, so the reason - a refused logon with the
+                // configured credentials, above all - is only ever visible here.
+                Debug.WriteLine($"CCM action {id} on {computerName} failed : {ex.Message}");
                 return false;
             }
         }

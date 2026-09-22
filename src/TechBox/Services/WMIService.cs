@@ -3,6 +3,7 @@ using Microsoft.Management.Infrastructure.Options;
 using System.Diagnostics.Metrics;
 using TechBox.Models.Hardware;
 using TechBox.Services.Contracts;
+using TechBox.Statics;
 
 namespace TechBox.Services
 {
@@ -35,6 +36,14 @@ namespace TechBox.Services
 
             if(Impersonate == true)
                 DComOptions.Impersonation = ImpersonationType.Impersonate;
+
+            // Queries the remote machine under the admin credentials from the settings page when
+            // they are configured, so an inventory read works even when the technician's own account
+            // has no rights there. Null - none configured, or the target is this machine, which MI
+            // refuses to connect to with explicit credentials - leaves the current session in place.
+            CimCredential? credential = RemoteCredentials.CreateCimCredential(Computer.Name);
+            if (credential is not null)
+                DComOptions.AddDestinationCredentials(credential);
 
             using CimSession mySession = CimSession.Create(Computer.Name, DComOptions);
             // Materialize while the session is open: QueryInstances is lazily evaluated
