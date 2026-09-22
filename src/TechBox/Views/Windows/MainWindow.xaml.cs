@@ -3,6 +3,10 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
+using Microsoft.Extensions.DependencyInjection;
+using TechBox.PluginContract;
+using TechBox.Services;
+using TechBox.Services.Contracts;
 using TechBox.ViewModels.Windows;
 using Wpf.Ui.Abstractions;
 using Wpf.Ui.Controls;
@@ -11,24 +15,39 @@ namespace TechBox.Views.Windows
 {
     public partial class MainWindow : FluentWindow, INavigationWindow
     {
+        /// <summary>
+        /// Dependency injection scope the navigated pages of this window are resolved from. Pages and
+        /// their view models are registered as scoped, so this window keeps one instance of each -
+        /// exactly like the previous singleton registrations - while a page opened in its own window
+        /// gets a separate scope, and therefore a separate instance.
+        /// </summary>
+        private readonly IServiceScope _pageScope;
+
+        private readonly IPageWindowService _pageWindowService;
+
+        private object? _currentPage;
+
         public MainWindowViewModel ViewModel { get; }
 
         public MainWindow(
             MainWindowViewModel viewModel,
-            INavigationViewPageProvider navigationViewPageProvider,
+            IServiceScopeFactory serviceScopeFactory,
+            IPageWindowService pageWindowService,
             INavigationService navigationService,
             IServiceProvider serviceProvider,
             ISnackbarService snackbarService,
             IContentDialogService contentDialogService
         )
         {
-            
+
             ViewModel = viewModel;
+            _pageWindowService = pageWindowService;
+            _pageScope = serviceScopeFactory.CreateScope();
             DataContext = this;
 
             InitializeComponent();
 
-            SetPageService(navigationViewPageProvider);
+            SetPageService(new ScopedNavigationViewPageProvider(_pageScope.ServiceProvider));
 
             navigationService.SetNavigationControl(RootNavigation);
             snackbarService.SetSnackbarPresenter(SnackbarPresenter);
@@ -60,9 +79,46 @@ namespace TechBox.Views.Windows
         {
             base.OnClosed(e);
 
+            _pageScope.Dispose();
+
             // Make sure that closing this window will begin the process of closing the application.
             Application.Current.Shutdown();
         }
+
+        #region New window
+
+        /// <summary>
+        /// The button is opt-in, per menu entry: it only appears for pages whose navigation item is a
+        /// <see cref="TechBoxNavigationViewItem"/> with <c>AllowExternalWindow = true</c>. Every other
+        /// page - and any navigation not coming from the menu - keeps it hidden.
+        /// </summary>
+        private void RootNavigation_OnNavigated(NavigationView sender, NavigatedEventArgs args)
+        {
+            _currentPage = args.Page;
+
+            bool allowExternalWindow =
+                _currentPage is not null
+                && RootNavigation.SelectedItem is TechBoxNavigationViewItem { AllowExternalWindow: true };
+
+            OpenInNewWindowButton.Visibility = allowExternalWindow ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void OpenInNewWindowButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage is null)
+            {
+                return;
+            }
+
+            string? header = RootNavigation.SelectedItem?.Content?.ToString();
+            string title = string.IsNullOrWhiteSpace(header)
+                ? ViewModel.ApplicationTitle
+                : $"{ViewModel.ApplicationTitle} - {header}";
+
+            _pageWindowService.OpenInNewWindow(_currentPage.GetType(), title);
+        }
+
+        #endregion New window
 
         INavigationView INavigationWindow.GetNavigation()
         {

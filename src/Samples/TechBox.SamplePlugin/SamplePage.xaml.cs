@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Controls;
+using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
 
 namespace TechBox.SamplePlugin

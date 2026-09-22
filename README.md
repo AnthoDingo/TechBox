@@ -50,7 +50,8 @@ A plugin can:
    would break `is ITechBoxPlugin` type checks.
 2. Implement `TechBox.PluginContract.ITechBoxPlugin` on a public class with a public parameterless
    constructor, registering its pages/view models/services in `ConfigureServices` and contributing
-   navigation menu items in `CreateMenuItems`.
+   navigation menu items in `CreateMenuItems`. Register pages and their view models with
+   `AddScoped`, not `AddSingleton` (see *Opening a page in a new window* below).
 3. Build the project and copy its entire build output (the plugin DLL, its `.deps.json`, and any
    dependency DLLs) into its own subfolder of TechBox's `Plugins` folder, e.g.
    `Plugins\MyPlugin\`. DLLs that aren't plugins themselves (dependencies) are simply ignored by
@@ -61,3 +62,39 @@ A working, buildable example lives in `samples/TechBox.SamplePlugin`.
 
 See also [Lear-Roche-La-Moliere/TechBox.Lear](https://github.com/Lear-Roche-La-Moliere/TechBox.Lear)
 for a real-world plugin.
+
+## Opening a page in a new window
+
+A page can be opened in its own window, through a button at the right end of the breadcrumb line
+above it. That window hosts nothing but the page: no navigation pane, no breadcrumb, so several
+pages (or the same page twice, on two different computers or users) can be watched side by side.
+
+The button is **opt-in, per menu entry, and hidden by default**. A menu entry enables it by being a
+`TechBoxNavigationViewItem` - a `NavigationViewItem` with TechBox's own options - instead of a plain
+`NavigationViewItem`:
+
+```csharp
+computers.MenuItems.Add(new TechBoxNavigationViewItem("SCCM", SymbolRegular.ClipboardTaskListLtr20, typeof(SCCMPage))
+{
+    AllowExternalWindow = true
+});
+```
+
+Everything else - pages reached from a plain menu item, and any navigation not coming from the menu
+- keeps the button hidden. Only turn it on for a page that tolerates being displayed twice at once.
+
+Each hosting window - the main window included - creates its own dependency injection scope, and
+pages are resolved from that scope. This is why pages and page view models are registered with
+`AddScoped` instead of `AddSingleton`: a singleton page is a single visual element, and the same
+element cannot live in two windows at once, while a singleton view model would make every window
+show the same state. With `AddScoped`, the main window keeps exactly one instance of each page for
+the whole session - the behaviour the singleton registrations used to give - and every detached
+window gets its own, independent one, disposed together with the window.
+
+A page registered as a singleton by an older plugin still opens in a new window (the page instance
+is built with `ActivatorUtilities`, which never reuses the registered one), but it shares its view
+model, and therefore its state, with the main window. Registering scoped is what makes the two
+windows independent.
+
+Services shared by the whole application (`IActiveDirectory`, snackbar and dialog services, …) stay
+singletons: a snackbar raised from a detached page is displayed by the main window.

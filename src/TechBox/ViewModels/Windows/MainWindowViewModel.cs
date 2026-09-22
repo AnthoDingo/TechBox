@@ -109,7 +109,10 @@ namespace TechBox.ViewModels.Windows
                 Content = "Users",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleToolbox20 },               
             };
-            users.MenuItems.Add(new NavigationViewItem("Infos", SymbolRegular.PeopleSearch20, typeof(Views.Pages.Users.InfoPage)));
+            users.MenuItems.Add(new TechBoxNavigationViewItem("Infos", SymbolRegular.PeopleSearch20, typeof(Views.Pages.Users.InfoPage))
+            {
+                AllowExternalWindow = true
+            });
             MenuItems.Add(users);
 
             NavigationViewItem computers = new NavigationViewItem()
@@ -117,12 +120,24 @@ namespace TechBox.ViewModels.Windows
                 Content = "Computers",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.DesktopToolbox20 },
             };
-            computers.MenuItems.Add(new NavigationViewItem("Computer Infos", SymbolRegular.DeveloperBoardSearch20, typeof(Views.Pages.Computers.InfoPage)));
-            computers.MenuItems.Add(new NavigationViewItem("SCCM", SymbolRegular.ClipboardTaskListLtr20, typeof(Views.Pages.Computers.SCCMPage)));
-            computers.MenuItems.Add(new NavigationViewItem("Backup Profile", SymbolRegular.SaveArrowRight20, typeof(Views.Pages.Computers.BackupProfilePage)));
+            computers.MenuItems.Add(new TechBoxNavigationViewItem("Computer Infos", SymbolRegular.DeveloperBoardSearch20, typeof(Views.Pages.Computers.InfoPage))
+            {
+                AllowExternalWindow = true
+            });
+            computers.MenuItems.Add(new TechBoxNavigationViewItem("SCCM", SymbolRegular.ClipboardTaskListLtr20, typeof(Views.Pages.Computers.SCCMPage))
+            {
+                AllowExternalWindow = true
+            });
+            computers.MenuItems.Add(new TechBoxNavigationViewItem("Backup Profile", SymbolRegular.SaveArrowRight20, typeof(Views.Pages.Computers.BackupProfilePage))
+            {
+                AllowExternalWindow = true
+            });
             //computers.MenuItems.Add(new NavigationViewItem("Restore Profile", SymbolRegular.SaveEdit20, typeof(Views.Pages.Computers.RestoreProfilePage)));
             //computers.MenuItems.Add(new NavigationViewItem("GLPI", SymbolRegular.Box20, typeof(Views.Pages.Computers.InfoPage)));
-            computers.MenuItems.Add(new NavigationViewItem("Power", SymbolRegular.Power20, typeof(Views.Pages.Computers.PowerPage)));
+            computers.MenuItems.Add(new TechBoxNavigationViewItem("Power", SymbolRegular.Power20, typeof(Views.Pages.Computers.PowerPage))
+            {
+                AllowExternalWindow = true
+            });
             MenuItems.Add(computers);
 
             NavigationViewItem tools = new NavigationViewItem()
@@ -130,7 +145,10 @@ namespace TechBox.ViewModels.Windows
                 Content = "Tools",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.WindowDevTools20 },
             };
-            tools.MenuItems.Add(new NavigationViewItem("Active Directory",SymbolRegular.BookContacts20, typeof(Views.Pages.Tools.ActiveDirectoryPage)));
+            tools.MenuItems.Add(new TechBoxNavigationViewItem("Active Directory", SymbolRegular.BookContacts20, typeof(Views.Pages.Tools.ActiveDirectoryPage))
+            {
+                AllowExternalWindow = true
+            });
 #if DEBUG
             //TODO Not yet ready for production, need to implement a proper PowerShell page
             tools.MenuItems.Add(new NavigationViewItem("PowerShell", SymbolRegular.WindowConsole20, typeof(Views.Pages.Tools.PowerShellPage)));

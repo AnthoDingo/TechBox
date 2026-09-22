@@ -15,17 +15,24 @@ namespace TechBox.SamplePlugin
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<SamplePage>();
-            services.AddSingleton<SampleViewModel>();
+            // Scoped, not singleton: TechBox resolves pages from one dependency injection scope per
+            // hosting window, so a scoped page gets its own instance (and its own view model state)
+            // when the user opens it in a new window.
+            services.AddScoped<SamplePage>();
+            services.AddScoped<SampleViewModel>();
         }
 
         public IEnumerable<NavigationViewItem> CreateMenuItems()
         {
-            yield return new NavigationViewItem
+            // TechBoxNavigationViewItem rather than NavigationViewItem: it carries TechBox's own
+            // per-page options. AllowExternalWindow shows the button that opens the page in its own
+            // window - hidden by default, and on a plain NavigationViewItem.
+            yield return new TechBoxNavigationViewItem
             {
                 Content = Name,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.PuzzlePiece20 },
                 TargetPageType = typeof(SamplePage),
+                AllowExternalWindow = true,
             };
         }
     }

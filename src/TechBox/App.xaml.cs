@@ -79,6 +79,7 @@ namespace TechBox
                     .AddSingleton<ISnackbarService, SnackbarService>()
                     .AddSingleton<IContentDialogService, ContentDialogService>()
                     .AddSingleton<IActiveDirectory, ActiveDirectoryService>()
+                    .AddSingleton<IPageWindowService, PageWindowService>()
                     ;
 
                 services
@@ -90,47 +91,51 @@ namespace TechBox
                     .AddTransient<PowerActionViewModel>()
                     ;
 
+                // Pages and their view models are scoped, not singletons: each window hosting a page
+                // (the main window, and every window opened with IPageWindowService) creates its own
+                // scope, so a page detached into a new window gets its own page and view model
+                // instance instead of fighting over the single one the main window already displays.
                 services
-                    .AddSingleton<HomePage>()
-                    .AddSingleton<HomeViewModel>()
-                    .AddSingleton<DashboardPage>()
-                    .AddSingleton<DashboardViewModel>()
+                    .AddScoped<HomePage>()
+                    .AddScoped<HomeViewModel>()
+                    .AddScoped<DashboardPage>()
+                    .AddScoped<DashboardViewModel>()
                     ;
                     //.AddSingleton<IvantiPage>()
                     //.AddSingleton<IvantiViewModel>();
 
                 // Users Pages
                 services
-                    .AddSingleton<Views.Pages.Users.InfoPage>()
-                    .AddSingleton<ViewModels.Pages.Users.InfoViewModel>();
+                    .AddScoped<Views.Pages.Users.InfoPage>()
+                    .AddScoped<ViewModels.Pages.Users.InfoViewModel>();
 
                 // Computers Pages
                 services
-                    .AddSingleton<Views.Pages.Computers.InfoPage>()
-                    .AddSingleton<ViewModels.Pages.Computers.InfoViewModel>()
-                    .AddSingleton<Views.Pages.Computers.SCCMPage>()
-                    .AddSingleton<ViewModels.Pages.Computers.SCCMViewModel>()
-                    .AddSingleton<Views.Pages.Computers.BackupProfilePage>()
-                    .AddSingleton<ViewModels.Pages.Computers.BackupProfileViewModel>()
-                    .AddSingleton<Views.Pages.Computers.PowerPage>()
-                    .AddSingleton<ViewModels.Pages.Computers.PowerViewModel>()
+                    .AddScoped<Views.Pages.Computers.InfoPage>()
+                    .AddScoped<ViewModels.Pages.Computers.InfoViewModel>()
+                    .AddScoped<Views.Pages.Computers.SCCMPage>()
+                    .AddScoped<ViewModels.Pages.Computers.SCCMViewModel>()
+                    .AddScoped<Views.Pages.Computers.BackupProfilePage>()
+                    .AddScoped<ViewModels.Pages.Computers.BackupProfileViewModel>()
+                    .AddScoped<Views.Pages.Computers.PowerPage>()
+                    .AddScoped<ViewModels.Pages.Computers.PowerViewModel>()
                     ;
-                //services.AddSingleton<ViewModels.Pages.Computers.RestoreProfileViewModel>();
-                //services.AddSingleton<Views.Pages.Computers.RestoreProfilePage>();
+                //services.AddScoped<ViewModels.Pages.Computers.RestoreProfileViewModel>();
+                //services.AddScoped<Views.Pages.Computers.RestoreProfilePage>();
 
                 // Tools Pages
                 services
-                    .AddSingleton<Views.Pages.Tools.ActiveDirectoryPage>()
-                    .AddSingleton<ViewModels.Pages.Tools.ActiveDirectoryViewModel>()
-                    .AddSingleton<Views.Pages.Tools.PowerShellPage>()
-                    .AddSingleton<ViewModels.Pages.Tools.PowerShellViewModel>()
+                    .AddScoped<Views.Pages.Tools.ActiveDirectoryPage>()
+                    .AddScoped<ViewModels.Pages.Tools.ActiveDirectoryViewModel>()
+                    .AddScoped<Views.Pages.Tools.PowerShellPage>()
+                    .AddScoped<ViewModels.Pages.Tools.PowerShellViewModel>()
                     ;
 
                 services
-                    .AddSingleton<DataPage>()
-                    .AddSingleton<DataViewModel>()                    
-                    .AddSingleton<SettingsPage>()
-                    .AddSingleton<SettingsViewModel>()
+                    .AddScoped<DataPage>()
+                    .AddScoped<DataViewModel>()                    
+                    .AddScoped<SettingsPage>()
+                    .AddScoped<SettingsViewModel>()
                     ;
 
                 // Plugins

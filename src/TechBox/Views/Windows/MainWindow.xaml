@@ -51,13 +51,33 @@
                 IsBackButtonVisible="Visible"
                 IsPaneToggleVisible="True"
                 MenuItemsSource="{Binding ViewModel.MenuItems, Mode=OneWay}"
+                Navigated="RootNavigation_OnNavigated"
                 OpenPaneLength="200"
                 PaneClosed="NavigationView_OnPaneClosed"
                 PaneDisplayMode="Left"
                 PaneOpened="NavigationView_OnPaneOpened"
                 TitleBar="{Binding ElementName=TitleBar, Mode=OneWay}">
                 <ui:NavigationView.Header>
-                    <ui:BreadcrumbBar x:Name="BreadcrumbBar" Margin="42,32,42,20" />
+                    <Grid Margin="42,32,42,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <ui:BreadcrumbBar
+                            x:Name="BreadcrumbBar"
+                            Grid.Column="0"
+                            VerticalAlignment="Center" />
+
+                        <ui:Button
+                            x:Name="OpenInNewWindowButton"
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Click="OpenInNewWindowButton_OnClick"
+                            Icon="{ui:SymbolIcon Symbol=WindowNew24}"
+                            ToolTip="Ouvrir cette page dans une nouvelle fenêtre"
+                            Visibility="Collapsed" />
+                    </Grid>
                 </ui:NavigationView.Header>
                 <ui:NavigationView.AutoSuggestBox>
                     <ui:AutoSuggestBox x:Name="AutoSuggestBox" PlaceholderText="Search">
