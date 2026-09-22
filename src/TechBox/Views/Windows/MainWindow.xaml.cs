@@ -62,6 +62,12 @@ namespace TechBox.Views.Windows
             {
                 this.Width = width;
                 this.Height = height;
+
+                // WindowStartupLocation only centers the window once, on its first Show(). Resizing it
+                // afterwards (splash screen -> full content) leaves Left/Top untouched, so the window
+                // has to be recentered on the work area by hand each time its dimensions change.
+                this.Left = SystemParameters.WorkArea.Left + (SystemParameters.WorkArea.Width - width) / 2;
+                this.Top = SystemParameters.WorkArea.Top + (SystemParameters.WorkArea.Height - height) / 2;
             };
         }
 
