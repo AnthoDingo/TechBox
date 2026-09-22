@@ -227,7 +227,12 @@ namespace TechBox.Controls
 		{
 			await Task.Delay(2 * 1000, cancellationToken);
 
-            Computer computer = new Computer() { Name = ComputerName };
+            // ComputerName is a DependencyProperty, so it belongs to the UI thread: read once here
+            // and hand the plain string to the background work below, which would otherwise throw
+            // "The calling thread cannot access this object because a different thread owns it".
+            string computerName = ComputerName;
+
+            Computer computer = new Computer() { Name = computerName };
 
             CurrentAction = "Checking Computer availability";
 
@@ -263,7 +268,7 @@ namespace TechBox.Controls
                     methodArgs["sScheduleID"] = action.ClientAction;
 
                     bool result = await Task.Run(
-                        () => Management.InvokeCCMAction(ComputerName, action.ClientAction),
+                        () => Management.InvokeCCMAction(computerName, action.ClientAction),
                         cancellationToken);
 
                     PercentComplete += 1;
