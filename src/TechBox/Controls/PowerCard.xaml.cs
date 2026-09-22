@@ -16,12 +16,22 @@ namespace TechBox.Controls
     {
         private const int RefreshIntervalMs = 10_000;
 
+        private const int TickIntervalMs = 1_000;
+
         public static readonly DependencyProperty ComputerNameProperty = DependencyProperty.Register(nameof(ComputerName), typeof(string), typeof(PowerCard), new PropertyMetadata(default(string)));
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private Computer _computer = new Computer();
         private Timer? _uptimeTimer;
+        private Timer? _tickTimer;
+
+        /// <summary>
+        /// Set when a refresh fails, so the local tick stops passing off a stale uptime as live
+        /// until the machine answers again.
+        /// </summary>
+        /// <remarks>Volatile: written by the refresh timer, read by the tick timer.</remarks>
+        private volatile bool _isFaulted;
 
         public PowerCard()
         {
@@ -69,6 +79,22 @@ namespace TechBox.Controls
             // Ticks on a ThreadPool thread separate from the UI thread: each tick re-queries WMI
             // and refreshes the uptime shown on this card every 10 seconds.
             _uptimeTimer = new Timer(async _ => await RefreshUptimeAsync(), null, RefreshIntervalMs, RefreshIntervalMs);
+
+            // Between two of those, the displayed uptime keeps running on its own, every second.
+            // Nothing is queried: the model derives the uptime from the boot time, a fixed point in
+            // time, so simply reading it again gives the elapsed value. Each WMI refresh silently
+            // resets the boot time, and the count carries on from whatever the machine reports.
+            _tickTimer = new Timer(_ => Tick(), null, TickIntervalMs, TickIntervalMs);
+        }
+
+        private void Tick()
+        {
+            if (_isFaulted || _computer.LastBootUpTime is null)
+            {
+                return;
+            }
+
+            UptimeText = _computer.UptimeAsHuman;
         }
 
         private async Task RefreshUptimeAsync()
@@ -77,9 +103,11 @@ namespace TechBox.Controls
             {
                 await _computer.GetUptime();
                 UptimeText = _computer.UptimeAsHuman;
+                _isFaulted = false;
             }
             catch (Exception ex)
             {
+                _isFaulted = true;
                 UptimeText = $"Erreur : {ex.Message}";
             }
         }
@@ -88,6 +116,9 @@ namespace TechBox.Controls
         {
             _uptimeTimer?.Dispose();
             _uptimeTimer = null;
+
+            _tickTimer?.Dispose();
+            _tickTimer = null;
         }
 
         public event Action<PowerCard>? RemoveEvent;
