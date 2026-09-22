@@ -1,0 +1,3 @@
+[submodule "src/TechBox.PluginContract"]
+	path = src/TechBox.PluginContract
+	url = https://github.com/AnthoDingo/TechBox.PluginContract.git
