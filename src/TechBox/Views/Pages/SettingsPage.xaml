@@ -20,6 +20,8 @@
     mc:Ignorable="d">
     <Page.Resources>
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <helpers:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibilityConverter" />
     </Page.Resources>
 
 	<Grid>
@@ -28,6 +30,57 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 		
+		<StackPanel Grid.Column="0" Margin="0,0,8,0">
+			<ui:Card>
+				<StackPanel>
+					<ui:TextBlock FontWeight="Medium" Text="License" />
+					<TextBlock Margin="0,8,0,0" Text="{Binding ViewModel.AppVersion, Mode=OneWay}" />
+					<TextBlock Margin="0,4,0,0" Text="{Binding ViewModel.License, Mode=OneWay}" TextWrapping="Wrap" />
+					<ui:HyperlinkButton
+						Margin="0,4,0,0"
+						Padding="0,4,0,4"
+						Content="Read the full license"
+						NavigateUri="{Binding ViewModel.LicenseUrl, Mode=OneWay}" />
+					<TextBlock
+						Margin="0,4,0,0"
+						Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+						Text="{Binding ViewModel.ThirdPartyNotice, Mode=OneWay}"
+						TextWrapping="Wrap" />
+				</StackPanel>
+			</ui:Card>
+
+			<ui:Card Margin="0,8,0,0">
+				<StackPanel>
+					<ui:TextBlock FontWeight="Medium" Text="Loaded plugins" />
+
+					<TextBlock
+						Margin="0,8,0,0"
+						Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+						Text="No plugin loaded."
+						Visibility="{Binding ViewModel.HasPlugins, Converter={StaticResource InvertBoolToVisibilityConverter}}" />
+
+					<ItemsControl
+						Margin="0,8,0,0"
+						ItemsSource="{Binding ViewModel.LoadedPlugins, Mode=OneWay}"
+						Visibility="{Binding ViewModel.HasPlugins, Converter={StaticResource BoolToVisibilityConverter}}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate DataType="{x:Type models:LoadedPlugin}">
+								<StackPanel Margin="0,0,0,8">
+									<TextBlock FontWeight="SemiBold" Text="{Binding Name}" TextWrapping="Wrap" />
+									<TextBlock
+										Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+										TextWrapping="Wrap">
+										<Run Text="{Binding FileName, Mode=OneWay}" />
+										<Run Text="{Binding Version, Mode=OneWay}" />
+									</TextBlock>
+								</StackPanel>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+			</ui:Card>
+		</StackPanel>
+
 		<StackPanel Grid.Column="0" Visibility="Collapsed">
 			<TextBlock
 				FontSize="20"

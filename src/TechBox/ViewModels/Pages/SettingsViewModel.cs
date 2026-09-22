@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using TechBox.Controls;
 using TechBox.Databases;
 using TechBox.Models;
+using TechBox.PluginContract;
 using TechBox.Statics;
 using TechBox.Views.Windows;
 
@@ -14,6 +15,13 @@ namespace TechBox.ViewModels.Pages
 {
     public partial class SettingsViewModel : ObservableObject, INavigationAware
 	{
+        private readonly IReadOnlyList<ITechBoxPlugin> _plugins;
+
+        public SettingsViewModel(IReadOnlyList<ITechBoxPlugin> plugins)
+        {
+            _plugins = plugins;
+        }
+
         private bool _isInitialized = false;
         private SQLiteContext _context = new SQLiteContext();
         private Setting _theme;
@@ -24,6 +32,25 @@ namespace TechBox.ViewModels.Pages
 
         [ObservableProperty]
         private string _appVersion = String.Empty;
+
+        /// <summary>License TechBox itself is distributed under, as its LICENSE file states.</summary>
+        public string License => "GNU General Public License v3.0";
+
+        public string LicenseUrl => "https://www.gnu.org/licenses/gpl-3.0.html";
+
+        /// <summary>
+        /// Third parties whose licenses apply to what ships alongside TechBox. Short on purpose: the
+        /// full texts live with the packages themselves.
+        /// </summary>
+        public string ThirdPartyNotice =>
+            "Uses WPF-UI and the .NET libraries it depends on, distributed under their own licenses (MIT for WPF-UI).";
+
+        /// <summary>Plugins loaded at startup, empty when the Plugins folder holds none.</summary>
+        [ObservableProperty]
+        private IEnumerable<LoadedPlugin> _loadedPlugins = new List<LoadedPlugin>();
+
+        [ObservableProperty]
+        private bool _hasPlugins;
 
         [ObservableProperty]
         private Wpf.Ui.Appearance.ApplicationTheme _currentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
@@ -52,6 +79,9 @@ namespace TechBox.ViewModels.Pages
         {
             
             AppVersion = $"TechBox - {GetAssemblyVersion()}";
+
+            LoadedPlugins = _plugins.Select(DescribePlugin).ToList();
+            HasPlugins = LoadedPlugins.Any();
 
 			SCCMActions = _context.SCCMActions.Where(s => !string.IsNullOrEmpty(s.Name)).ToList();
 
@@ -84,6 +114,23 @@ namespace TechBox.ViewModels.Pages
 			//CurrentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
 
 			_isInitialized = true;
+        }
+
+        /// <summary>
+        /// Describes a plugin from the assembly it was loaded from. A plugin loaded from memory has
+        /// no location, hence the fallback on the assembly's simple name.
+        /// </summary>
+        private static LoadedPlugin DescribePlugin(ITechBoxPlugin plugin)
+        {
+            System.Reflection.AssemblyName assemblyName = plugin.GetType().Assembly.GetName();
+            string location = plugin.GetType().Assembly.Location;
+
+            return new LoadedPlugin(
+                plugin.Name,
+                assemblyName.Version?.ToString() ?? string.Empty,
+                string.IsNullOrEmpty(location)
+                    ? $"{assemblyName.Name}.dll"
+                    : System.IO.Path.GetFileName(location));
         }
 
         private string GetAssemblyVersion()
