@@ -27,6 +27,9 @@ namespace TechBox.Views.Windows
 
         private object? _currentPage;
 
+        /// <summary>Menu entry of the displayed page, when it allows being opened in its own window.</summary>
+        private TechBoxNavigationViewItem? _currentExternalWindowItem;
+
         public MainWindowViewModel ViewModel { get; }
 
         public MainWindow(
@@ -96,26 +99,29 @@ namespace TechBox.Views.Windows
         {
             _currentPage = args.Page;
 
-            bool allowExternalWindow =
-                _currentPage is not null
-                && RootNavigation.SelectedItem is TechBoxNavigationViewItem { AllowExternalWindow: true };
+            // Matched on the page type: RootNavigation.SelectedItem still holds the entry being
+            // navigated away from at this point, which made the button lag one navigation behind.
+            _currentExternalWindowItem = _currentPage is null
+                ? null
+                : ViewModel.FindExternalWindowItem(_currentPage.GetType());
 
-            OpenInNewWindowButton.Visibility = allowExternalWindow ? Visibility.Visible : Visibility.Collapsed;
+            OpenInNewWindowButton.Visibility =
+                _currentExternalWindowItem is not null ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OpenInNewWindowButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (_currentPage is null)
+            if (_currentPage is null || _currentExternalWindowItem is null)
             {
                 return;
             }
 
-            string? header = RootNavigation.SelectedItem?.Content?.ToString();
+            string? header = _currentExternalWindowItem.Content?.ToString();
             string title = string.IsNullOrWhiteSpace(header)
                 ? ViewModel.ApplicationTitle
                 : $"{ViewModel.ApplicationTitle} - {header}";
 
-            _pageWindowService.OpenInNewWindow(_currentPage.GetType(), title);
+            _pageWindowService.OpenInNewWindow(_currentPage, title);
         }
 
         #endregion New window

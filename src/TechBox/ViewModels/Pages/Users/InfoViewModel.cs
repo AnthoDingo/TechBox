@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Markup;
 using TechBox.Models.ActiveDirectory;
+using TechBox.PluginContract;
 using TechBox.Services.Contracts;
 using TechBox.ViewModels.Windows;
 using TechBox.Views.Windows;
@@ -8,7 +9,7 @@ using Wpf.Ui.Controls;
 
 namespace TechBox.ViewModels.Pages.Users
 {
-    public partial class InfoViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged
+    public partial class InfoViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged, IExternalWindowState
     {
         private bool _isInitialized = false;
         private IActiveDirectory _activeDirectory;
@@ -16,6 +17,22 @@ namespace TechBox.ViewModels.Pages.Users
         public InfoViewModel(IActiveDirectory activeDirectory)
         {
             _activeDirectory = activeDirectory;
+        }
+
+        /// <summary>
+        /// Re-runs the lookup for the user the main window is displaying, rather than copying the
+        /// <see cref="User"/> across: the model wraps live directory objects, which the detached
+        /// window is better off holding its own.
+        /// </summary>
+        public async Task CopyStateFromAsync(object source)
+        {
+            if (source is not InfoViewModel origin || origin.SelectedUser is null)
+            {
+                return;
+            }
+
+            Task lookup = await GetUser(origin.SelectedUser.samAccountName);
+            await lookup;
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;

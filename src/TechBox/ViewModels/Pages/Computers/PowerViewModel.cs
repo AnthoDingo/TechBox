@@ -1,10 +1,11 @@
 using System.Collections.ObjectModel;
 using TechBox.Controls;
+using TechBox.PluginContract;
 using TechBox.Services.Contracts;
 
 namespace TechBox.ViewModels.Pages.Computers
 {
-    public partial class PowerViewModel : ObservableObject, INavigationAware
+    public partial class PowerViewModel : ObservableObject, INavigationAware, IExternalWindowState
     {
 
         private bool _isInitialized = false;
@@ -20,6 +21,29 @@ namespace TechBox.ViewModels.Pages.Computers
         public PowerViewModel(IActiveDirectory activeDirectory)
         {
             _activeDirectory = activeDirectory;
+        }
+
+        /// <summary>
+        /// Recreates a card per computer the main window tracks. Each detached card does its own
+        /// tracking, which is a read of the machine's state and nothing more - no power action is
+        /// replayed.
+        /// </summary>
+        public Task CopyStateFromAsync(object source)
+        {
+            if (source is not PowerViewModel origin)
+            {
+                return Task.CompletedTask;
+            }
+
+            foreach (PowerCard card in origin.PowerCards.ToList())
+            {
+                if (!string.IsNullOrWhiteSpace(card.ComputerName))
+                {
+                    GetComputer(card.ComputerName);
+                }
+            }
+
+            return Task.CompletedTask;
         }
 
         public Task OnNavigatedFromAsync()

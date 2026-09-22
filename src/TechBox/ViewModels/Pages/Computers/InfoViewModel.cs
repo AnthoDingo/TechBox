@@ -2,12 +2,13 @@
 using System.Diagnostics;
 using TechBox.Databases;
 using TechBox.Models.Hardware;
+using TechBox.PluginContract;
 using TechBox.Services.Contracts;
 using TechBox.Statics;
 
 namespace TechBox.ViewModels.Pages.Computers
 {
-    public partial class InfoViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged
+    public partial class InfoViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged, IExternalWindowState
     {
 
         private bool _isInitialized = false;
@@ -23,6 +24,21 @@ namespace TechBox.ViewModels.Pages.Computers
         public InfoViewModel(IActiveDirectory activeDirectory)
         {
             _activeDirectory = activeDirectory;
+        }
+
+        /// <summary>
+        /// Queries the computer the main window is displaying again, rather than copying the
+        /// <see cref="Computer"/> across: its hardware, disks and software are read live, and the
+        /// detached window is better off holding its own.
+        /// </summary>
+        public async Task CopyStateFromAsync(object source)
+        {
+            if (source is not InfoViewModel origin || string.IsNullOrWhiteSpace(origin.SelectedCompter?.Name))
+            {
+                return;
+            }
+
+            await GetComputer(origin.SelectedCompter.Name);
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;

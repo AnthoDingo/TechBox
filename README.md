@@ -83,6 +83,27 @@ computers.MenuItems.Add(new TechBoxNavigationViewItem("SCCM", SymbolRegular.Clip
 Everything else - pages reached from a plain menu item, and any navigation not coming from the menu
 - keeps the button hidden. Only turn it on for a page that tolerates being displayed twice at once.
 
+A detached window starts from a fresh view model, so it would otherwise open on an empty page. To
+have it open on whatever the main window is displaying, implement `IExternalWindowState` on the page
+view model:
+
+```csharp
+public async Task CopyStateFromAsync(object source)
+{
+    if (source is not InfoViewModel origin || origin.SelectedUser is null)
+        return;
+
+    await GetUser(origin.SelectedUser.samAccountName);
+}
+```
+
+`source` is the view model of the same page as displayed in the main window - always test its type.
+It is called once the page's usual navigation life cycle has run, so the lists loaded there are
+already in place. Prefer re-running the lookup over copying the model across: these models wrap live
+directory and WMI objects, which each window is better off holding its own. Carry over the
+*selection*, not the work in progress: a running backup, or a card whose recreation would fire SCCM
+actions again, stays in the window that started it.
+
 Each hosting window - the main window included - creates its own dependency injection scope, and
 pages are resolved from that scope. This is why pages and page view models are registered with
 `AddScoped` instead of `AddSingleton`: a singleton page is a single visual element, and the same

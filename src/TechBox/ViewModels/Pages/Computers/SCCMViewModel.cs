@@ -4,13 +4,14 @@ using TechBox.Controls;
 using TechBox.Databases;
 using TechBox.Models;
 using TechBox.Models.Hardware;
+using TechBox.PluginContract;
 using TechBox.Services.Contracts;
 using TechBox.Statics;
 using Wpf.Ui.Controls;
 
 namespace TechBox.ViewModels.Pages.Computers
 {
-    public partial class SCCMViewModel : ObservableObject, INavigationAware
+    public partial class SCCMViewModel : ObservableObject, INavigationAware, IExternalWindowState
     {
 
         private bool _isInitialized = false;
@@ -29,6 +30,21 @@ namespace TechBox.ViewModels.Pages.Computers
         public SCCMViewModel(IActiveDirectory activeDirectory)
         {
             _activeDirectory = activeDirectory;
+        }
+
+        /// <summary>
+        /// Carries over the selected computer only. The cards are left behind on purpose: recreating
+        /// one runs its SCCM actions against the machine, and opening a window is no reason to fire
+        /// them a second time.
+        /// </summary>
+        public Task CopyStateFromAsync(object source)
+        {
+            if (source is SCCMViewModel origin && !string.IsNullOrWhiteSpace(origin.SelectedCompter?.Name))
+            {
+                SetComputer(origin.SelectedCompter.Name);
+            }
+
+            return Task.CompletedTask;
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;

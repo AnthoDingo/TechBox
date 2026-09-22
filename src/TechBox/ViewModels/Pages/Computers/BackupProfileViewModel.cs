@@ -3,13 +3,14 @@ using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using TechBox.Databases;
 using TechBox.Models.Hardware;
+using TechBox.PluginContract;
 using TechBox.Services.Contracts;
 using RoboSharp;
 using TechBox.Controls;
 
 namespace TechBox.ViewModels.Pages.Computers
 {
-    public partial class BackupProfileViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged
+    public partial class BackupProfileViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged, IExternalWindowState
     {
 
         private bool _isInitialized = false;
@@ -30,6 +31,25 @@ namespace TechBox.ViewModels.Pages.Computers
         public BackupProfileViewModel(IActiveDirectory activeDirectory)
         {
             _activeDirectory = activeDirectory;
+        }
+
+        /// <summary>
+        /// Carries over the computer and the profile picked on it. The selection only: a backup in
+        /// progress keeps running in the window that started it.
+        /// </summary>
+        public async Task CopyStateFromAsync(object source)
+        {
+            if (source is not BackupProfileViewModel origin || string.IsNullOrWhiteSpace(origin.SelectedCompter?.Name))
+            {
+                return;
+            }
+
+            await GetComputer(origin.SelectedCompter.Name);
+
+            if (BackupProfiles.Contains(origin.SelectedProfile))
+            {
+                SelectedProfile = origin.SelectedProfile;
+            }
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;

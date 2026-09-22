@@ -250,6 +250,50 @@ namespace TechBox.ViewModels.Windows
             UpdateWindowDimension?.Invoke(1400, 650);
         }
 
+        /// <summary>
+        /// Finds the menu entry pointing at <paramref name="pageType"/> and letting it be opened in
+        /// its own window, or <see langword="null"/> when no entry does.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately resolved from the page type rather than from the navigation's SelectedItem:
+        /// when the Navigated event fires, SelectedItem still holds the entry navigated away from,
+        /// which made the button lag one navigation behind.
+        /// </remarks>
+        public TechBoxNavigationViewItem? FindExternalWindowItem(Type pageType) =>
+            Flatten(MenuItems)
+                .Concat(Flatten(FooterMenuItems))
+                .OfType<TechBoxNavigationViewItem>()
+                .FirstOrDefault(item => item.AllowExternalWindow && item.TargetPageType == pageType);
+
+        /// <summary>Walks a menu and the sub-menus its items carry, depth first.</summary>
+        private static IEnumerable<object> Flatten(System.Collections.IEnumerable? items)
+        {
+            if (items is null)
+            {
+                yield break;
+            }
+
+            foreach (object item in items)
+            {
+                yield return item;
+
+                if (item is not NavigationViewItem navigationItem)
+                {
+                    continue;
+                }
+
+                foreach (object child in Flatten(navigationItem.MenuItems))
+                {
+                    yield return child;
+                }
+
+                foreach (object child in Flatten(navigationItem.MenuItemsSource as System.Collections.IEnumerable))
+                {
+                    yield return child;
+                }
+            }
+        }
+
         private NavigationViewItem CreateNavigationViewItem(string content, SymbolRegular icon, string process)
         {
             NavigationViewItem item = new NavigationViewItem()

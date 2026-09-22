@@ -14,10 +14,11 @@ namespace TechBox.Services
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public void OpenInNewWindow(Type pageType, string? title = null)
+        public void OpenInNewWindow(object sourcePage, string? title = null)
         {
-            ArgumentNullException.ThrowIfNull(pageType);
+            ArgumentNullException.ThrowIfNull(sourcePage);
 
+            Type pageType = sourcePage.GetType();
             IServiceScope scope = _serviceScopeFactory.CreateScope();
 
             try
@@ -29,7 +30,7 @@ namespace TechBox.Services
                 // instance - the same element cannot be displayed in two windows at once.
                 object page = ActivatorUtilities.CreateInstance(scope.ServiceProvider, pageType);
 
-                PageWindow window = new(page, string.IsNullOrWhiteSpace(title) ? pageType.Name : title!);
+                PageWindow window = new(page, string.IsNullOrWhiteSpace(title) ? pageType.Name : title!, sourcePage);
                 window.Closed += (_, _) => scope.Dispose();
                 window.Show();
             }
