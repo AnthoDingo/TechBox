@@ -37,14 +37,12 @@ namespace TechBox.ViewModels.Pages.Computers
         /// one runs its SCCM actions against the machine, and opening a window is no reason to fire
         /// them a second time.
         /// </summary>
-        public Task CopyStateFromAsync(object source)
+        public async Task CopyStateFromAsync(object source)
         {
             if (source is SCCMViewModel origin && !string.IsNullOrWhiteSpace(origin.SelectedCompter?.Name))
             {
-                SetComputer(origin.SelectedCompter.Name);
+                await SetComputer(origin.SelectedCompter.Name);
             }
-
-            return Task.CompletedTask;
         }
 
         public Task OnNavigatedFromAsync() => Task.CompletedTask;
@@ -62,9 +60,13 @@ namespace TechBox.ViewModels.Pages.Computers
             _isInitialized = true;
         }
 
-        internal void SetComputer(string ComputerName)
+        /// <summary>
+        /// Looks the computer up on a ThreadPool thread: the directory query blocks long enough to
+        /// freeze the window when run straight from the UI thread, as picking a name does.
+        /// </summary>
+        public async Task SetComputer(string ComputerName)
         {
-            SelectedCompter = _activeDirectory.GetComputer(ComputerName);
+            SelectedCompter = await Task.Run(() => _activeDirectory.GetComputer(ComputerName));
         }
 
         public bool IsEnable

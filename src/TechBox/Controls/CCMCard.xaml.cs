@@ -230,7 +230,12 @@ namespace TechBox.Controls
             Computer computer = new Computer() { Name = ComputerName };
 
             CurrentAction = "Checking Computer availability";
-            if (!computer.IsOnline())
+
+            // Every call below reaching the network runs on a ThreadPool thread: IsOnline pings and
+            // InvokeCCMAction opens a DCOM connection, queries the client and triggers the schedule,
+            // all of it blocking for seconds. Awaited straight from the UI thread, as it used to be,
+            // it froze the whole window for the duration of the run.
+            if (!await Task.Run(() => computer.IsOnline(), cancellationToken))
             {
                 SymbolIcon = SymbolRegular.PlugDisconnected24;
                 MaxPercent = 1;
@@ -257,7 +262,9 @@ namespace TechBox.Controls
 
                     methodArgs["sScheduleID"] = action.ClientAction;
 
-                    bool result = Management.InvokeCCMAction(ComputerName, action.ClientAction);
+                    bool result = await Task.Run(
+                        () => Management.InvokeCCMAction(ComputerName, action.ClientAction),
+                        cancellationToken);
 
                     PercentComplete += 1;
 

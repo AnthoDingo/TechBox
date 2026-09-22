@@ -62,7 +62,9 @@ namespace TechBox.Controls
                 return;
             }
 
-            await RefreshUptimeAsync();
+            // On a ThreadPool thread like the timer ticks below: GetUptime is an async method that
+            // queries WMI synchronously, so awaiting it here would block the UI thread instead.
+            await Task.Run(RefreshUptimeAsync);
 
             // Ticks on a ThreadPool thread separate from the UI thread: each tick re-queries WMI
             // and refreshes the uptime shown on this card every 10 seconds.

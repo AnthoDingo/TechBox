@@ -17,10 +17,10 @@ namespace TechBox.Views.Pages.Computers
             InitializeComponent();
         }
 
-        private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private async void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
             Debug.WriteLine(args);
-            ViewModel.SetComputer(args.SelectedItem.ToString());
+            await ViewModel.SetComputer(args.SelectedItem.ToString());
         }
     }
 }
