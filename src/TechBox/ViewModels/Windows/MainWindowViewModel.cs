@@ -126,17 +126,17 @@ namespace TechBox.ViewModels.Windows
             });
             computers.MenuItems.Add(new TechBoxNavigationViewItem("SCCM", SymbolRegular.ClipboardTaskListLtr20, typeof(Views.Pages.Computers.SCCMPage))
             {
-                AllowExternalWindow = true
+                AllowExternalWindow = false
             });
-            computers.MenuItems.Add(new TechBoxNavigationViewItem("Backup Profile", SymbolRegular.SaveArrowRight20, typeof(Views.Pages.Computers.BackupProfilePage))
-            {
-                AllowExternalWindow = true
-            });
+            //computers.MenuItems.Add(new TechBoxNavigationViewItem("Backup Profile", SymbolRegular.SaveArrowRight20, typeof(Views.Pages.Computers.BackupProfilePage))
+            //{
+            //    AllowExternalWindow = true
+            //});
             //computers.MenuItems.Add(new NavigationViewItem("Restore Profile", SymbolRegular.SaveEdit20, typeof(Views.Pages.Computers.RestoreProfilePage)));
             //computers.MenuItems.Add(new NavigationViewItem("GLPI", SymbolRegular.Box20, typeof(Views.Pages.Computers.InfoPage)));
             computers.MenuItems.Add(new TechBoxNavigationViewItem("Power", SymbolRegular.Power20, typeof(Views.Pages.Computers.PowerPage))
             {
-                AllowExternalWindow = true
+                AllowExternalWindow = false
             });
             MenuItems.Add(computers);
 
@@ -147,7 +147,7 @@ namespace TechBox.ViewModels.Windows
             };
             tools.MenuItems.Add(new TechBoxNavigationViewItem("Active Directory", SymbolRegular.BookContacts20, typeof(Views.Pages.Tools.ActiveDirectoryPage))
             {
-                AllowExternalWindow = true
+                AllowExternalWindow = false
             });
 #if DEBUG
             //TODO Not yet ready for production, need to implement a proper PowerShell page
@@ -171,6 +171,7 @@ namespace TechBox.ViewModels.Windows
                 {
                     MenuItems.Add(item);
                 }
+                MenuItems = plugin.UpdateMenuItems(MenuItems);
 
                 if (!string.IsNullOrWhiteSpace(plugin.ApplicationTitle) && ApplicationTitle == "Local IT TechBox")
                 {

@@ -18,10 +18,10 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     
-    <Page.Resources>
+    <!--<Page.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibility" />
         <helpers:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibilityConverter" />
-    </Page.Resources>
+    </Page.Resources>-->
     
     <Grid>
         <Grid.RowDefinitions>
@@ -35,9 +35,8 @@
                 MinWidth="200" PlaceholderText="Computer Name" 
                 OriginalItemsSource="{Binding ViewModel.Computers, Mode=OneWay}"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
-                IsEnabled="{Binding ViewModel.IsEnable, Mode=OneWay}"
                 />
-            <ui:Button Margin="15,0,0,0" Content="Run" Command="{Binding ViewModel.AddCompterCommand}" IsEnabled="{Binding ViewModel.IsEnable, Mode=OneWay}" />
+            <ui:Button Margin="15,0,0,0" Content="Run" Command="{Binding ViewModel.AddCompterCommand}" />
         </StackPanel>
 
         <ui:VirtualizingItemsControl 
@@ -56,11 +55,5 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ui:VirtualizingItemsControl>
-
-        <ui:InfoBar Grid.Row="1" Margin="0,25,0,0" Visibility="{Binding ViewModel.IsEnable, Converter={StaticResource InvertBoolToVisibilityConverter}}"
-            Severity="Error" IsClosable="False" IsOpen="True"
-            HorizontalAlignment="Stretch" VerticalAlignment="Top"
-            Title="Access Denied" 
-            Message="You must run application RunAsAdministrator to use this functionnality." />
     </Grid>
 </Page>
